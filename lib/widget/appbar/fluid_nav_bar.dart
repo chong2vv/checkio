@@ -12,7 +12,7 @@ class FluidNavBar extends StatefulWidget {
 
   static const double nominalHeight = 60.0;
 
-  final FluidNavBarChangeCallback onChange;
+  final FluidNavBarChangeCallback? onChange;
 
   FluidNavBar({ this.onChange });
 
@@ -23,11 +23,12 @@ class FluidNavBar extends StatefulWidget {
 class _FluidNavBarState extends State<FluidNavBar> with TickerProviderStateMixin {
   int _selectedIndex = 0;
 
-  AnimationController _xController;
-  AnimationController _yController;
+  late AnimationController _xController;
+  late AnimationController _yController;
 
   @override
   void initState() {
+    super.initState();
     _xController = AnimationController(
       vsync: this,
       animationBehavior: AnimationBehavior.preserve
@@ -41,8 +42,6 @@ class _FluidNavBarState extends State<FluidNavBar> with TickerProviderStateMixin
       setState(() {
       });
     });
-
-    super.initState();
   }
 
   @override
@@ -120,9 +119,9 @@ class _FluidNavBarState extends State<FluidNavBar> with TickerProviderStateMixin
       FluidFillIcons.progress,
       FluidFillIcons.user
     ];
-    var buttons = List<FluidNavBarButton>(4);
+    var buttons = <FluidNavBarButton>[];
     for (var i = 0; i < 4; ++i) {
-      buttons[i] = FluidNavBarButton(icons[i], _selectedIndex == i, () => _handlePressed(i));
+      buttons.add(FluidNavBarButton(icons[i], _selectedIndex == i, () => _handlePressed(i)));
     }
     return buttons;
   }
@@ -168,9 +167,7 @@ class _FluidNavBarState extends State<FluidNavBar> with TickerProviderStateMixin
     );
     _yController.animateTo(0.0, duration: Duration(milliseconds: 300));
 
-    if (widget.onChange != null) {
-      widget.onChange(index);
-    }
+    widget.onChange?.call(index);
   }
 }
 

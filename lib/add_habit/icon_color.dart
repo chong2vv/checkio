@@ -9,44 +9,46 @@ class IconAndColorPage extends StatefulWidget {
   final String selectedIcon;
   final Color selectedColor;
 
-  const IconAndColorPage({Key key, this.selectedIcon, this.selectedColor})
-      : super(key: key);
+  const IconAndColorPage({
+    Key? key,
+    required this.selectedIcon,
+    required this.selectedColor,
+  }) : super(key: key);
 
   @override
   _IconAndColorPageState createState() => _IconAndColorPageState();
 }
 
 class _IconAndColorPageState extends State<IconAndColorPage> {
-  List<HabitIcon> icons = [];
-  HabitIcon _selectIcon;
+  late List<HabitIcon> icons;
+  late HabitIcon _selectIcon;
 
-  List<HabitColor> backgroundColors = [];
-  HabitColor _selectBackgroundColor;
+  late List<HabitColor> backgroundColors;
+  late HabitColor _selectBackgroundColor;
 
   @override
   void initState() {
+    super.initState();
     icons = HabitIcon.getIcons();
+    _selectIcon = icons.first;
 
-    icons.forEach((icon) {
-      if (icon.icon == widget.selectedIcon) {
-        icon.isSelect = true;
+    for (final icon in icons) {
+      final isSelected = icon.icon == widget.selectedIcon;
+      icon.isSelect = isSelected;
+      if (isSelected) {
         _selectIcon = icon;
-      } else {
-        icon.isSelect = false;
       }
-    });
+    }
 
     backgroundColors = HabitColor.getBackgroundColors();
-    backgroundColors.forEach((color) {
-      if (color.color.value == widget.selectedColor.value) {
-        color.isSelect = true;
+    _selectBackgroundColor = backgroundColors.first;
+    for (final color in backgroundColors) {
+      final isSelected = color.color.value == widget.selectedColor.value;
+      color.isSelect = isSelected;
+      if (isSelected) {
         _selectBackgroundColor = color;
-      } else {
-        color.isSelect = false;
       }
-    });
-
-    super.initState();
+    }
   }
 
   @override
@@ -162,10 +164,10 @@ class _IconAndColorPageState extends State<IconAndColorPage> {
               height: 40,
               child: GestureDetector(
                 onTap: () {
-                  Map<String, dynamic> result = Map();
-                  print(_selectIcon.icon);
-                  result['icon'] = _selectIcon.icon;
-                  result['color'] = _selectBackgroundColor.color;
+                  final result = <String, dynamic>{
+                    'icon': _selectIcon.icon,
+                    'color': _selectBackgroundColor.color,
+                  };
                   Navigator.of(context).pop(result);
                 },
                 child: SvgPicture.asset(

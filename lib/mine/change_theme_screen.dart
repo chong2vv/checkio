@@ -96,8 +96,11 @@ class ThemeColorView extends StatefulWidget {
 
   final OnTap onTap;
 
-  const ThemeColorView({Key key, this.currentColorMode, this.onTap})
-      : super(key: key);
+  const ThemeColorView({
+    Key? key,
+    required this.currentColorMode,
+    required this.onTap,
+  }) : super(key: key);
 
   @override
   _ThemeColorViewState createState() => _ThemeColorViewState();
@@ -111,7 +114,7 @@ class _ThemeColorViewState extends State<ThemeColorView> {
   ///每一个Item占据的空间
   double viewPortFraction = 1 / 3;
 
-  PageController pageController;
+  late PageController pageController;
 
   ///中间的为目标
   double scrollPageIndex = 1.0;
@@ -120,12 +123,12 @@ class _ThemeColorViewState extends State<ThemeColorView> {
 
   @override
   void initState() {
+    super.initState();
     pageController = PageController(
         initialPage: currentPage, viewportFraction: viewPortFraction);
     Future.delayed(Duration(milliseconds: 500), () {
       scrollToIndex(widget.currentColorMode);
     });
-    super.initState();
   }
 
   void scrollToIndex(AppThemeColorMode colorMode) {
@@ -156,7 +159,7 @@ class _ThemeColorViewState extends State<ThemeColorView> {
         onNotification: (ScrollNotification notification) {
           if (notification is ScrollUpdateNotification) {
             setState(() {
-              scrollPageIndex = pageController.page;
+              scrollPageIndex = pageController.page ?? 1.0;
             });
             return true;
           }

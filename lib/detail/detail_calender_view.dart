@@ -17,20 +17,20 @@ class HabitDetailCalendarView extends StatefulWidget {
   final int createTime;
   final Color color;
   final Map<String, List<HabitRecord>> records;
-  final List<DateTime> days;
+  final List<DateTime?> days;
   final int period;
   final List<int> completeDays;
 
-  const HabitDetailCalendarView(
-      {Key key,
-      this.habitId,
-      this.color,
-      this.records,
-      this.days,
-      this.createTime,
-      this.completeDays,
-      this.period})
-      : super(key: key);
+  const HabitDetailCalendarView({
+    Key? key,
+    required this.habitId,
+    required this.color,
+    required this.records,
+    required this.days,
+    required this.createTime,
+    required this.completeDays,
+    required this.period,
+  }) : super(key: key);
 
   @override
   _HabitDetailCalendarViewState createState() =>
@@ -38,7 +38,7 @@ class HabitDetailCalendarView extends StatefulWidget {
 }
 
 class _HabitDetailCalendarViewState extends State<HabitDetailCalendarView> {
-  List<DateTime> days;
+  late List<DateTime?> days;
 
   @override
   void initState() {
@@ -56,23 +56,11 @@ class _HabitDetailCalendarViewState extends State<HabitDetailCalendarView> {
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 7, childAspectRatio: 1.5, mainAxisSpacing: 5),
           itemBuilder: (context, index) {
-            DateTime day = days[index];
-            Pair2<bool, int> contains = containsDay(day);
+            final day = days[index];
             if (day == null) {
-              if (index < 7) {
-                return Container(
-                  alignment: Alignment.center,
-                  child: Text(
-                    '${DateUtil.getWeekendString(index + 1)}',
-                    style: AppTheme.appTheme.numHeadline1(
-                        textColor: Colors.black,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 15),
-                  ),
-                );
-              }
               return Container();
             }
+            Pair2<bool, int> contains = containsDay(day);
             return GestureDetector(
               onTap: () async {
                 if (DateUtil.isFuture(day)) {
@@ -129,17 +117,17 @@ class _HabitDetailCalendarViewState extends State<HabitDetailCalendarView> {
   }
 
   Pair2<bool, int> containsDay(DateTime date) {
-    if (date == null) {
-      return Pair2(false, 0);
-    }
     bool contain = false;
     int count = 0;
-    if (widget.records == null || widget.records.length == 0) {
+    if (widget.records.isEmpty) {
       contain = false;
-    } else if (widget.records
-        .containsKey('${date.year}-${date.month}-${date.day}')) {
-      contain = true;
-      count = widget.records['${date.year}-${date.month}-${date.day}'].length;
+    } else {
+      final key = '${date.year}-${date.month}-${date.day}';
+      final records = widget.records[key];
+      if (records != null) {
+        contain = true;
+        count = records.length;
+      }
     }
     return Pair2(contain, count);
   }

@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:timefly/app_theme.dart';
 
 class FloatingModal extends StatelessWidget {
   final Widget child;
 
-  const FloatingModal({Key key, this.child}) : super(key: key);
+  const FloatingModal({
+    Key? key,
+    required this.child,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -49,10 +51,10 @@ class FloatingModal extends StatelessWidget {
   }
 }
 
-Future<T> showFloatingModalBottomSheet<T>({
-  @required BuildContext context,
-  @required WidgetBuilder builder,
-  Color barrierColor,
+Future<T?> showFloatingModalBottomSheet<T>({
+  required BuildContext context,
+  required WidgetBuilder builder,
+  Color? barrierColor,
 }) async {
   final result = await showCustomModalBottomSheet(
     context: context,

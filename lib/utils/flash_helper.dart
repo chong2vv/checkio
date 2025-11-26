@@ -4,20 +4,16 @@ import 'package:flutter/material.dart';
 import '../app_theme.dart';
 
 class FlashHelper {
-  static Future<T> toast<T>(BuildContext context, String message) async {
+  static Future<T?> toast<T>(BuildContext context, String message) async {
     return showFlash<T>(
         context: context,
         duration: Duration(milliseconds: 2000),
         builder: (context, controller) {
-          return Flash.bar(
-              margin: EdgeInsets.only(left: 24, right: 24),
+          return Flash(
               position: FlashPosition.top,
-              brightness: AppTheme.appTheme.isDark()
-                  ? Brightness.light
-                  : Brightness.dark,
-              backgroundColor: Colors.transparent,
               controller: controller,
               child: Container(
+                margin: EdgeInsets.only(left: 24, right: 24),
                 alignment: Alignment.center,
                 padding: EdgeInsets.all(16),
                 height: 80,

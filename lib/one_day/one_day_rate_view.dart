@@ -14,8 +14,12 @@ class OneDayRateView extends StatelessWidget {
   final List<Habit> allHabits;
   final Animation<Offset> animation;
 
-  const OneDayRateView({Key key, this.period, this.allHabits, this.animation})
-      : super(key: key);
+  const OneDayRateView({
+    Key? key,
+    required this.period,
+    required this.allHabits,
+    required this.animation,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -143,8 +147,10 @@ class OneDayRateView extends StatelessWidget {
 
   int _needCompleteNum(List<Habit> habits) {
     int count = 0;
-    habits.where((element) => element.period == period).forEach((element) {
-      count += element.doNum;
+    habits
+        .where((element) => (element.period ?? HabitPeriod.month) == period)
+        .forEach((element) {
+      count += element.doNum ?? 1;
     });
     return count;
   }
@@ -166,7 +172,9 @@ class OneDayRateView extends StatelessWidget {
       start = monthSAE.x0;
       end = monthSAE.x1;
     }
-    habits.where((element) => element.period == period).forEach((element) {
+    habits
+        .where((element) => (element.period ?? HabitPeriod.month) == period)
+        .forEach((element) {
       count += HabitUtil.getDoCountOfHabit(element.records, start, end);
     });
     return count;

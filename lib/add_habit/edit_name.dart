@@ -7,8 +7,8 @@ class EditFiledView extends StatefulWidget {
   final Mutable<String> content;
 
   const EditFiledView({
-    Key key,
-    this.content,
+    Key? key,
+    required this.content,
   }) : super(key: key);
 
   @override

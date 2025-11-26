@@ -22,9 +22,13 @@ class HabitCheckView extends StatefulWidget {
 
   final String habitId;
 
-  const HabitCheckView(
-      {Key key, this.habitId, this.start, this.end, this.isFromDetail})
-      : super(key: key);
+  const HabitCheckView({
+    Key? key,
+    required this.habitId,
+    required this.start,
+    required this.end,
+    required this.isFromDetail,
+  }) : super(key: key);
 
   @override
   _HabitCheckViewState createState() => _HabitCheckViewState();
@@ -115,7 +119,7 @@ class _HabitCheckViewState extends State<HabitCheckView> {
                   );
 
                   BlocProvider.of<RecordBloc>(context).add(RecordAdd(record));
-                  listKey.currentState.insertItem(0,
+                  listKey.currentState?.insertItem(0,
                       duration: const Duration(milliseconds: 500));
 
                   scrollController.animateTo(0,
@@ -139,7 +143,7 @@ class _HabitCheckViewState extends State<HabitCheckView> {
   }
 
   Widget getCheckItemView(
-      BuildContext context, HabitRecord record, Animation<dynamic> animation) {
+      BuildContext context, HabitRecord record, Animation<double> animation) {
     return SizeTransition(
       sizeFactor:
           CurvedAnimation(parent: animation, curve: Curves.fastOutSlowIn),
@@ -271,7 +275,7 @@ class _HabitCheckViewState extends State<HabitCheckView> {
         .add(RecordDelete(widget.habitId, record.time));
 
     int index = habitRecords.indexOf(record);
-    listKey.currentState.removeItem(
+    listKey.currentState?.removeItem(
         index, (_, animation) => getCheckItemView(_, record, animation),
         duration: const Duration(milliseconds: 500));
   }

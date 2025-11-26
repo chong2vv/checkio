@@ -21,11 +21,11 @@ class HabitUtil {
     if (habits.length > 0) {
       Map<int, List<Habit>> map = {};
       habits.forEach((habit) {
-        int completeTime = habit.completeTime;
+        final completeTime = habit.completeTime ?? -1;
         if (map[completeTime] == null) {
-          map[completeTime] = List<Habit>();
+          map[completeTime] = <Habit>[];
         }
-        map[completeTime].add(habit);
+        map[completeTime]!.add(habit);
       });
 
       List<int> keys = map.keys.toList();
@@ -33,14 +33,17 @@ class HabitUtil {
 
       Map<int, List<Habit>> newMap = {};
       keys.forEach((key) {
-        newMap[key] = map[key];
+        final value = map[key];
+        if (value != null) {
+          newMap[key] = value;
+        }
       });
 
       newMap.forEach((completeTime, habits) {
         datas.add(OnDayHabitListData(
             type: OnDayHabitListData.typeTitle,
             value: CompleteTime.getTime(completeTime)));
-        habits.sort((a, b) => b.createTime.compareTo(a.createTime));
+        habits.sort((a, b) => (b.createTime ?? 0).compareTo(a.createTime ?? 0));
         datas.add(OnDayHabitListData(
             type: OnDayHabitListData.typeHabits, value: habits));
       });
@@ -97,11 +100,16 @@ class HabitUtil {
     }
 
     List<String> keys = streaks.keys.toList();
-    keys.sort((a, b) => streaks[b] == streaks[a] ? 1 : streaks[b] - streaks[a]);
+    keys.sort((a, b) {
+      final valueA = streaks[a] ?? 0;
+      final valueB = streaks[b] ?? 0;
+      return valueA == valueB ? 1 : valueB - valueA;
+    });
     Map<String, int> newStreaks = {};
     keys.forEach((key) {
-      if (streaks[key] >= 1) {
-        newStreaks[key] = streaks[key];
+      final value = streaks[key];
+      if (value != null && value >= 1) {
+        newStreaks[key] = value;
       }
     });
     return newStreaks;
@@ -155,11 +163,7 @@ class HabitUtil {
   }
 
   static List<Habit> sortByCreateTime(List<Habit> habits) {
-    if (habits == null) {
-      return <Habit>[];
-    }
-
-    habits.sort((a, b) => b.createTime.compareTo(a.createTime));
+    habits.sort((a, b) => (b.createTime ?? 0).compareTo(a.createTime ?? 0));
     return habits;
   }
 
@@ -169,8 +173,9 @@ class HabitUtil {
     records.forEach((record) {
       DateTime time = DateTime.fromMillisecondsSinceEpoch(record.time);
       String timeStr = '${time.year}-${time.month}-${time.day}';
-      if (recordsMap.containsKey(timeStr)) {
-        recordsMap[timeStr].add(record);
+      final existingRecords = recordsMap[timeStr];
+      if (existingRecords != null) {
+        existingRecords.add(record);
       } else {
         recordsMap[timeStr] = [record];
       }
@@ -283,21 +288,21 @@ class HabitUtil {
 
   ///根据时间过滤记录
   static List<HabitRecord> filterHabitRecordsWithTime(List<HabitRecord> records,
-      {DateTime start, DateTime end}) {
-    if (records == null || records.length == 0) {
+      {DateTime? start, DateTime? end}) {
+    if (records.isEmpty) {
       return <HabitRecord>[];
     }
     List<HabitRecord> habitRecords = List<HabitRecord>.from(records);
 
-    if (start != null && end != null) {
+    if (end != null && start != null) {
       habitRecords = habitRecords
           .where((element) =>
               element.time > start.millisecondsSinceEpoch &&
               element.time < end.millisecondsSinceEpoch)
           .toList();
-      records.sort((a, b) => b.time - a.time);
+      habitRecords.sort((a, b) => b.time - a.time);
     } else {
-      records.sort((a, b) => b.time - a.time);
+      habitRecords.sort((a, b) => b.time - a.time);
     }
     return habitRecords;
   }
@@ -305,8 +310,8 @@ class HabitUtil {
   static List<HabitRecord> getHabitRecordsWithPeroid(
       List<HabitRecord> records, int period) {
     DateTime now = DateTime.now();
-    DateTime start;
-    DateTime end;
+    late DateTime start;
+    late DateTime end;
     switch (period) {
       case HabitPeriod.day:
         start = DateUtil.startOfDay(now);
@@ -318,6 +323,10 @@ class HabitUtil {
         break;
       case HabitPeriod.month:
         start = DateUtil.firstDayOfMonth(now);
+        end = DateUtil.endOfDay(now);
+        break;
+      default:
+        start = DateUtil.startOfDay(now);
         end = DateUtil.endOfDay(now);
         break;
     }

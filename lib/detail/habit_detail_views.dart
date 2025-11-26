@@ -15,15 +15,20 @@ class HabitBaseInfoView extends StatelessWidget {
   final AnimationController animationController;
   final Habit habit;
 
-  const HabitBaseInfoView({Key key, this.habit, this.animationController})
-      : super(key: key);
+  const HabitBaseInfoView({
+    Key? key,
+    required this.habit,
+    required this.animationController,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final period = habit.period ?? HabitPeriod.month;
+    final doNum = habit.doNum ?? 1;
     int recordLength =
-        HabitUtil.getHabitRecordsWithPeroid(habit.records, habit.period).length;
+        HabitUtil.getHabitRecordsWithPeroid(habit.records, period).length;
     int progress = recordLength;
-    if (progress > habit.doNum) {
+    if (progress > doNum) {
       progress = recordLength;
     }
     return Row(
@@ -70,10 +75,10 @@ class HabitBaseInfoView extends StatelessWidget {
             children: [
               CircleProgressBar(
                   backgroundColor: AppTheme.appTheme.containerBackgroundColor(),
-                  foregroundColor: Color(habit.mainColor),
-                  value: progress / habit.doNum),
+                  foregroundColor: Color(habit.mainColor ?? 0xFF000000),
+                  value: progress / doNum),
               Text(
-                '${((progress / habit.doNum) * 100).toInt()}%',
+                '${((progress / doNum) * 100).toInt()}%',
                 style: AppTheme.appTheme.numHeadline1(
                   fontWeight: FontWeight.normal,
                   fontSize: 14,
@@ -106,7 +111,7 @@ class HabitBaseInfoView extends StatelessWidget {
                         height: 5,
                         decoration: BoxDecoration(
                             color: habit.completeDays.contains(index + 1)
-                                ? Color(habit.mainColor)
+                                ? Color(habit.mainColor ?? 0xFF000000)
                                 : Colors.transparent,
                             shape: BoxShape.circle),
                       )
@@ -118,13 +123,15 @@ class HabitBaseInfoView extends StatelessWidget {
   }
 
   Widget _tipView(int recordLength) {
+    final period = habit.period ?? HabitPeriod.month;
+    final doNum = habit.doNum ?? 1;
     String tip = '今天需完成';
-    if (habit.period == HabitPeriod.week) {
+    if (period == HabitPeriod.week) {
       tip = '本周需完成';
-    } else if (habit.period == HabitPeriod.month) {
+    } else if (period == HabitPeriod.month) {
       tip = '本月需完成';
     }
-    if (habit.period == HabitPeriod.day &&
+    if (period == HabitPeriod.day &&
         !habit.completeDays.contains(DateTime.now().weekday)) {
       return Container(
         width: double.infinity,
@@ -150,7 +157,7 @@ class HabitBaseInfoView extends StatelessWidget {
         SizedBox(
           width: 3,
         ),
-        Text('${habit.doNum}',
+        Text('$doNum',
             style: AppTheme.appTheme.numHeadline1(
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -180,8 +187,11 @@ class HabitCompleteRateView extends StatefulWidget {
   final AnimationController animationController;
   final Habit habit;
 
-  const HabitCompleteRateView({Key key, this.habit, this.animationController})
-      : super(key: key);
+  const HabitCompleteRateView({
+    Key? key,
+    required this.habit,
+    required this.animationController,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -206,7 +216,7 @@ class _HabitCompleteRateViewState extends State<HabitCompleteRateView> {
 
   @override
   Widget build(BuildContext context) {
-    int period = widget.habit.period;
+    int period = widget.habit.period ?? HabitPeriod.month;
     return Row(
       children: [
         Expanded(
@@ -289,10 +299,10 @@ class _HabitCompleteRateViewState extends State<HabitCompleteRateView> {
             children: [
               CircleProgressBar(
                   backgroundColor: AppTheme.appTheme.containerBackgroundColor(),
-                  foregroundColor: Color(widget.habit.mainColor),
-                  value: _doCount(period) / widget.habit.doNum),
+                  foregroundColor: Color(widget.habit.mainColor ?? 0xFF000000),
+                  value: _doCount(period) / (widget.habit.doNum ?? 1)),
               Text(
-                '${((_doCount(period) / widget.habit.doNum) * 100).toInt()}%',
+                '${((_doCount(period) / (widget.habit.doNum ?? 1)) * 100).toInt()}%',
                 style: AppTheme.appTheme.numHeadline1(
                   textColor: Colors.black,
                   fontWeight: FontWeight.normal,
@@ -441,8 +451,11 @@ class HabitMonthInfoView extends StatefulWidget {
   final AnimationController animationController;
   final Habit habit;
 
-  const HabitMonthInfoView({Key key, this.animationController, this.habit})
-      : super(key: key);
+  const HabitMonthInfoView({
+    Key? key,
+    required this.animationController,
+    required this.habit,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -455,15 +468,15 @@ class HabitMonthInfoViewState extends State<HabitMonthInfoView>
   final double margin = 20;
   final double ratio = 1.5;
   final double calendarPadding = 16;
-  PageController pageController;
+  late PageController pageController;
   List<DateTime> months = DateUtil.getMonthsSince2020();
-  int currentIndex;
+  late int currentIndex;
 
   @override
   void initState() {
+    super.initState();
     currentIndex = months.length - 1;
     pageController = PageController(initialPage: months.length - 1);
-    super.initState();
   }
 
   @override
@@ -511,7 +524,7 @@ class HabitMonthInfoViewState extends State<HabitMonthInfoView>
                     });
                   },
                   itemBuilder: (context, index) {
-                    List<DateTime> days = DateUtil.getMonthDays(months[index]);
+                    List<DateTime?> days = DateUtil.getMonthDays(months[index]);
                     Map<String, List<HabitRecord>> records =
                         HabitUtil.combinationRecordsWithTime(
                             widget.habit.records,
@@ -527,7 +540,7 @@ class HabitMonthInfoViewState extends State<HabitMonthInfoView>
                                   28 +
                                   calendarPadding,
                               decoration: BoxDecoration(
-                                  color: Color(widget.habit.mainColor)
+                                  color: Color(widget.habit.mainColor ?? 0xFF000000)
                                       .withOpacity(0.1314),
                                   shape: BoxShape.rectangle,
                                   borderRadius:
@@ -536,12 +549,12 @@ class HabitMonthInfoViewState extends State<HabitMonthInfoView>
                                   EdgeInsets.only(left: margin, right: margin),
                               padding: EdgeInsets.only(top: calendarPadding),
                               child: HabitDetailCalendarView(
-                                color: Color(widget.habit.mainColor),
-                                createTime: widget.habit.createTime,
+                                color: Color(widget.habit.mainColor ?? 0xFF000000),
+                                createTime: widget.habit.createTime ?? 0,
                                 days: days,
-                                habitId: widget.habit.id,
+                                habitId: widget.habit.id ?? '',
                                 records: records,
-                                period: widget.habit.period,
+                                period: widget.habit.period ?? HabitPeriod.month,
                                 completeDays: widget.habit.completeDays,
                               ),
                             ),
@@ -550,7 +563,7 @@ class HabitMonthInfoViewState extends State<HabitMonthInfoView>
                         ),
                         Positioned(
                           left: days.length > 42
-                              ? (days[43] == null ? 80 : 110)
+                              ? (110)
                               : 80,
                           right: 20,
                           top:
@@ -606,8 +619,9 @@ class HabitMonthInfoViewState extends State<HabitMonthInfoView>
   }
 
   Widget _tipContainer(DateTime month, int checkNum) {
+    final createTimeValue = widget.habit.createTime ?? 0;
     DateTime createTime =
-        DateTime.fromMillisecondsSinceEpoch(widget.habit.createTime);
+        DateTime.fromMillisecondsSinceEpoch(createTimeValue);
     int createTimeMonth =
         DateTime(createTime.year, createTime.month, 1).millisecondsSinceEpoch;
     if (createTimeMonth > month.millisecondsSinceEpoch) {
@@ -615,16 +629,18 @@ class HabitMonthInfoViewState extends State<HabitMonthInfoView>
           style: AppTheme.appTheme
               .headline1(fontWeight: FontWeight.w300, fontSize: 14));
     }
-    int needDoNum;
-    if (widget.habit.period == HabitPeriod.day) {
+    final period = widget.habit.period ?? HabitPeriod.month;
+    final doNum = widget.habit.doNum ?? 1;
+    int needDoNum = 0;
+    if (period == HabitPeriod.day) {
       int dayNum = DateTime(month.year, month.month + 1, 0).day;
       dayNum = List.generate(
               dayNum, (index) => DateTime(month.year, month.month, index + 1))
           .where((day) => widget.habit.completeDays.contains(day.weekday))
           .length;
-      needDoNum = dayNum * widget.habit.doNum;
-    } else if (widget.habit.period == HabitPeriod.month) {
-      needDoNum = widget.habit.doNum;
+      needDoNum = dayNum * doNum;
+    } else if (period == HabitPeriod.month) {
+      needDoNum = doNum;
     }
     return Row(
       children: [
@@ -685,8 +701,11 @@ class HabitCheckInfoView extends StatelessWidget {
   final AnimationController animationController;
   final Habit habit;
 
-  const HabitCheckInfoView({Key key, this.habit, this.animationController})
-      : super(key: key);
+  const HabitCheckInfoView({
+    Key? key,
+    required this.habit,
+    required this.animationController,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -700,7 +719,7 @@ class HabitCheckInfoView extends StatelessWidget {
           child: Container(
             margin: EdgeInsets.only(left: 16, bottom: 12, top: 8),
             child: Text(
-              '${DateUtil.getDayString(habit.createTime)} - ${DateUtil.formDateTime(DateTime.now())}',
+              '${DateUtil.getDayString(habit.createTime ?? 0)} - ${DateUtil.formDateTime(DateTime.now())}',
               style: AppTheme.appTheme
                   .numHeadline1(fontWeight: FontWeight.bold, fontSize: 16),
             ),
@@ -796,8 +815,11 @@ class HabitStreakInfoView extends StatelessWidget {
   final Habit habit;
   final AnimationController animationController;
 
-  const HabitStreakInfoView({Key key, this.habit, this.animationController})
-      : super(key: key);
+  const HabitStreakInfoView({
+    Key? key,
+    required this.habit,
+    required this.animationController,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -805,8 +827,8 @@ class HabitStreakInfoView extends StatelessWidget {
         HabitUtil.combinationRecords(habit.records);
     Map<String, int> streaks = HabitUtil.getHabitStreaks(records);
     int maxCount = 0;
-    if (streaks.length > 0) {
-      maxCount = streaks[streaks.keys.first];
+    if (streaks.isNotEmpty) {
+      maxCount = streaks[streaks.keys.first] ?? 0;
     }
     return SlideTransition(
         position: Tween<Offset>(begin: Offset(0, 0.3), end: Offset.zero)
@@ -855,7 +877,7 @@ class HabitStreakInfoView extends StatelessWidget {
                     : Column(
                         children: streaks.keys
                             .take(5)
-                            .map((e) => _checkInfo(e, streaks[e], maxCount))
+                            .map((e) => _checkInfo(e, streaks[e] ?? 0, maxCount))
                             .toList(),
                       ),
               ],
@@ -885,7 +907,7 @@ class HabitStreakInfoView extends StatelessWidget {
                     flex: count,
                     child: Container(
                       decoration: BoxDecoration(
-                          color: Color(habit.mainColor).withOpacity(0.6),
+                          color: Color(habit.mainColor ?? 0xFF000000).withOpacity(0.6),
                           shape: BoxShape.rectangle,
                           borderRadius: BorderRadius.all(Radius.circular(10))),
                       height: 10,
@@ -930,7 +952,10 @@ class HabitStreakInfoView extends StatelessWidget {
 class HabitRecentRecordsView extends StatelessWidget {
   final Habit habit;
 
-  const HabitRecentRecordsView({Key key, this.habit}) : super(key: key);
+  const HabitRecentRecordsView({
+    Key? key,
+    required this.habit,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

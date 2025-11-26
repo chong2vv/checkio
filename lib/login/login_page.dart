@@ -16,13 +16,13 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
-  AnimationController _animationController;
+  late AnimationController _animationController;
 
   String phone = '';
   String code = '';
   String sendText = 'Send';
 
-  Timer timer;
+  Timer? timer;
 
   @override
   void initState() {
@@ -35,9 +35,7 @@ class _LoginPageState extends State<LoginPage>
   @override
   void dispose() {
     _animationController.dispose();
-    if (timer != null) {
-      timer.cancel();
-    }
+    timer?.cancel();
     super.dispose();
   }
 
@@ -164,7 +162,7 @@ class _LoginPageState extends State<LoginPage>
                       if (!hasPhone()) {
                         return;
                       }
-                      if (timer != null && timer.isActive) {
+                      if (timer?.isActive ?? false) {
                         return;
                       }
                       Future.delayed(Duration(seconds: 2), () {
@@ -209,7 +207,11 @@ class _LoginPageState extends State<LoginPage>
               child: GestureDetector(
                 onTap: () {
                   FlashHelper.toast(context, '登录成功');
-                  User user = User(Uuid().generateV4(), '', phone);
+                  User user = User(
+                    id: Uuid().generateV4(),
+                    username: '',
+                    phone: phone,
+                  );
                   SessionUtils.sharedInstance().login(user);
                   Navigator.of(context).pop();
                 },

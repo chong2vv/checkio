@@ -3,41 +3,41 @@ import 'package:timefly/app_theme.dart';
 
 class CustomEditField extends StatefulWidget {
   /// Container bg
-  final BoxDecoration containerDecoration;
-  final BoxDecoration numDecoration;
+  final BoxDecoration? containerDecoration;
+  final BoxDecoration? numDecoration;
 
-  final int maxLines;
-  final int maxLength;
-  final double minHeight;
+  final int? maxLines;
+  final int? maxLength;
+  final double? minHeight;
 
-  final String hintText;
-  final TextStyle hintTextStyle;
-  final TextStyle textStyle;
-  final TextStyle numTextStyle;
-  final bool autoFucus;
-  final TextInputType inputType;
+  final String? hintText;
+  final TextStyle? hintTextStyle;
+  final TextStyle? textStyle;
+  final TextStyle? numTextStyle;
+  final bool? autoFucus;
+  final TextInputType? inputType;
 
-  final String initValue;
-  final ValueChanged<String> onValueChanged;
-  final VoidCallback onCompleted;
+  final String? initValue;
+  final ValueChanged<String>? onValueChanged;
+  final VoidCallback? onCompleted;
 
-  const CustomEditField(
-      {Key key,
-      this.containerDecoration,
-      this.maxLines,
-      this.hintTextStyle,
-      this.textStyle,
-      this.initValue,
-      this.onValueChanged,
-      this.hintText,
-      this.maxLength,
-      this.numDecoration,
-      this.numTextStyle,
-      this.minHeight,
-      this.autoFucus,
-      this.inputType,
-      this.onCompleted})
-      : super(key: key);
+  const CustomEditField({
+    Key? key,
+    this.containerDecoration,
+    this.maxLines,
+    this.hintTextStyle,
+    this.textStyle,
+    this.initValue,
+    this.onValueChanged,
+    this.hintText,
+    this.maxLength,
+    this.numDecoration,
+    this.numTextStyle,
+    this.minHeight,
+    this.autoFucus,
+    this.inputType,
+    this.onCompleted,
+  }) : super(key: key);
 
   @override
   _CustomEditFieldState createState() => _CustomEditFieldState();
@@ -47,22 +47,22 @@ class _CustomEditFieldState extends State<CustomEditField>
     with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   ///文本内容
   String _value = '';
-  TextEditingController editingController;
-  AnimationController numAnimationController;
-  Animation<double> numAnimation;
+  late TextEditingController editingController;
+  late AnimationController numAnimationController;
+  late Animation<double> numAnimation;
 
   @override
   void initState() {
-    _value = widget.initValue;
+    super.initState();
+    _value = widget.initValue ?? '';
     editingController = TextEditingController(text: widget.initValue);
     numAnimationController =
         AnimationController(duration: Duration(milliseconds: 500), vsync: this);
     numAnimation = CurvedAnimation(
         parent: numAnimationController, curve: Curves.easeOutBack);
-    if (widget.initValue.length > 0) {
+    if ((widget.initValue?.length ?? 0) > 0) {
       numAnimationController.forward(from: 0.3);
     }
-    super.initState();
   }
 
   @override
@@ -74,14 +74,14 @@ class _CustomEditFieldState extends State<CustomEditField>
         children: [
           Container(
             constraints: BoxConstraints(
-                minHeight: widget.minHeight == null ? 0 : widget.minHeight),
+                minHeight: widget.minHeight ?? 0),
             margin: EdgeInsets.only(top: 10, left: 32, right: 32),
             decoration: widget.containerDecoration,
             child: TextField(
               strutStyle: StrutStyle(height: 1.5),
               controller: editingController,
               showCursor: true,
-              autofocus: widget.autoFucus == null ? false : widget.autoFucus,
+              autofocus: widget.autoFucus ?? false,
               style: widget.textStyle,
               maxLength: widget.maxLength,
               decoration: InputDecoration(
@@ -101,16 +101,15 @@ class _CustomEditFieldState extends State<CustomEditField>
               maxLines: (widget.maxLines == null || widget.maxLines == 1)
                   ? null
                   : widget.maxLines,
-              keyboardType: widget.inputType == null
-                  ? (widget.maxLines == null || widget.maxLines == 1)
+              keyboardType: widget.inputType ??
+                  ((widget.maxLines == null || widget.maxLines == 1)
                       ? TextInputType.name
-                      : TextInputType.multiline
-                  : widget.inputType,
+                      : TextInputType.multiline),
               cursorColor: AppTheme.appTheme.grandientColorStart(),
               onChanged: (value) async {
                 setState(() {
                   _value = value;
-                  widget.onValueChanged(value);
+                  widget.onValueChanged?.call(value);
                 });
                 if (value.length == 1) {
                   numAnimationController.forward(from: 0.3);
@@ -135,7 +134,7 @@ class _CustomEditFieldState extends State<CustomEditField>
                   width: 50,
                   height: 35,
                   child: Text(
-                    '${_value.length}/${widget.maxLength}',
+                    '${_value.length}/${widget.maxLength ?? 0}',
                     style: widget.numTextStyle,
                   ),
                 )),

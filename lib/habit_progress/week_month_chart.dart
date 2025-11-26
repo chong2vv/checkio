@@ -15,7 +15,10 @@ import 'package:time/time.dart';
 class WeekMonthChart extends StatefulWidget {
   final List<Habit> habits;
 
-  const WeekMonthChart({Key key, this.habits}) : super(key: key);
+  const WeekMonthChart({
+    Key? key,
+    required this.habits,
+  }) : super(key: key);
 
   @override
   _WeekMonthChartState createState() => _WeekMonthChartState();
@@ -23,10 +26,10 @@ class WeekMonthChart extends StatefulWidget {
 
 class _WeekMonthChartState extends State<WeekMonthChart>
     with TickerProviderStateMixin {
-  TabController _tabController;
+  late TabController _tabController;
   DateTime _now = DateTime.now();
 
-  int touchedIndex;
+  int touchedIndex = -1;
 
   ///当前周标示
   ///0 当前周，1，上一周
@@ -42,13 +45,13 @@ class _WeekMonthChartState extends State<WeekMonthChart>
 
   @override
   void initState() {
+    super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() {
       setState(() {
         currentChart = _tabController.index;
       });
     });
-    super.initState();
   }
 
   @override
@@ -334,7 +337,7 @@ class _WeekMonthChartState extends State<WeekMonthChart>
         touchCallback: (event, barTouchResponse) {
           setState(() {
             if (barTouchResponse?.spot != null) {
-              touchedIndex = barTouchResponse.spot?.touchedBarGroupIndex;
+              touchedIndex = barTouchResponse!.spot!.touchedBarGroupIndex;
             } else {
               touchedIndex = -1;
             }
@@ -458,11 +461,11 @@ class _WeekMonthChartState extends State<WeekMonthChart>
                               LineChartBarData bar, int index) {
                             return FlDotCirclePainter(
                                 radius: 5.5,
-                                color: bar.colors[0].value == Colors.white.value
+                                color: bar.colors[0] == Colors.white
                                     ? bar.colors[0]
                                     : Colors.transparent,
                                 strokeColor:
-                                    bar.colors[0].value == Colors.white.value
+                                    bar.colors[0] == Colors.white
                                         ? Colors.black12
                                         : Colors.transparent,
                                 strokeWidth: 1);
@@ -575,10 +578,10 @@ class _WeekMonthChartState extends State<WeekMonthChart>
                 LineChartBarData bar, int index) {
               return FlDotCirclePainter(
                   radius: 2,
-                  color: bar.colors[0].value == Colors.white.value
+                  color: bar.colors[0] == Colors.white
                       ? bar.colors[0]
                       : Colors.transparent,
-                  strokeColor: bar.colors[0].value == Colors.white.value
+                  strokeColor: bar.colors[0] == Colors.white
                       ? Colors.black12
                       : Colors.transparent,
                   strokeWidth: 0);

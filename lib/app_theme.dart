@@ -84,15 +84,15 @@ class AppTheme {
 
   static final AppTheme appTheme = AppTheme._();
 
-  AppThemeMode currentThemeMode;
-  AppThemeColorMode currentColorMode;
-  AppFontMode currentFontMode;
+  late AppThemeMode currentThemeMode;
+  late AppThemeColorMode currentColorMode;
+  late AppFontMode currentFontMode;
 
-  String fontFamliy;
+  late String fontFamliy;
 
   String numFontFamliy = 'Montserrat';
 
-  GradientColor gradientColor;
+  late GradientColor gradientColor;
 
   void setThemeState(AppThemeMode themeMode, AppThemeColorMode themeColorMode,
       AppFontMode fontMode) {
@@ -119,22 +119,29 @@ class AppTheme {
     return ThemeData.light().copyWith(
         primaryColor: Color(0xFFF2F7FB),
         primaryColorDark: Color(0xFF6B6B6B),
-        accentColor: grandientColorEnd());
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: grandientColorEnd(),
+          brightness: Brightness.light,
+        ));
   }
 
   ThemeData darkTheme() {
     return ThemeData.dark().copyWith(
         primaryColor: Color(0xFF17262A),
         primaryColorDark: Color(0xFF6B6B6B),
-        accentColor: grandientColorEnd());
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: grandientColorEnd(),
+          brightness: Brightness.dark,
+        ));
   }
 
   String fontFamily(AppFontMode fontMode) {
     switch (fontMode) {
+      case AppFontMode.Roboto:
+        return 'Roboto';
       case AppFontMode.MaShanZheng:
         return 'MaShanZheng';
     }
-    return 'Roboto';
   }
 
   static GradientColor getGradientColor(AppThemeColorMode mode) {
@@ -148,31 +155,33 @@ class AppTheme {
 
   ///------------字体------------
   /// 黑/白
-  TextStyle headline1(
-      {FontWeight fontWeight, double fontSize, Color textColor}) {
+  TextStyle headline1({
+    FontWeight? fontWeight,
+    double? fontSize,
+    Color? textColor,
+  }) {
     return TextStyle(
         fontWeight: fontWeight,
         fontSize: fontSize,
-        color: textColor == null
-            ? (isDark() ? Colors.white : Colors.black)
-            : textColor,
+        color: textColor ?? (isDark() ? Colors.white : Colors.black),
         fontFamily: fontFamliy);
   }
 
   /// 黑/灰色
-  TextStyle headline2(
-      {FontWeight fontWeight, double fontSize, Color textColor}) {
+  TextStyle headline2({
+    FontWeight? fontWeight,
+    double? fontSize,
+    Color? textColor,
+  }) {
     return TextStyle(
         fontWeight: fontWeight,
         fontSize: fontSize,
-        color: textColor == null
-            ? (isDark() ? Colors.white70 : Colors.black54)
-            : textColor,
+        color: textColor ?? (isDark() ? Colors.white70 : Colors.black54),
         fontFamily: fontFamliy);
   }
 
   /// Edit hint text
-  TextStyle hint({FontWeight fontWeight, double fontSize}) {
+  TextStyle hint({FontWeight? fontWeight, double? fontSize}) {
     return TextStyle(
         fontWeight: fontWeight,
         fontSize: fontSize,
@@ -183,7 +192,7 @@ class AppTheme {
   }
 
   /// theme color text
-  TextStyle themeText({FontWeight fontWeight, double fontSize}) {
+  TextStyle themeText({FontWeight? fontWeight, double? fontSize}) {
     return TextStyle(
         fontWeight: fontWeight,
         fontSize: fontSize,
@@ -192,31 +201,36 @@ class AppTheme {
   }
 
   ///数字
-  TextStyle numHeadline1(
-      {FontWeight fontWeight, double fontSize, Color textColor}) {
+  TextStyle numHeadline1({
+    FontWeight? fontWeight,
+    double? fontSize,
+    Color? textColor,
+  }) {
     return TextStyle(
         fontWeight: fontWeight,
         fontSize: fontSize,
-        color: textColor == null
-            ? (isDark() ? Colors.white : Colors.black)
-            : textColor,
+        color: textColor ?? (isDark() ? Colors.white : Colors.black),
         fontFamily: numFontFamliy);
   }
 
   ///数字
-  TextStyle numHeadline2(
-      {FontWeight fontWeight, double fontSize, Color textColor}) {
+  TextStyle numHeadline2({
+    FontWeight? fontWeight,
+    double? fontSize,
+    Color? textColor,
+  }) {
     return TextStyle(
         fontWeight: fontWeight,
         fontSize: fontSize,
-        color: textColor == null
-            ? (isDark() ? Colors.white70 : Colors.black54)
-            : textColor,
+        color: textColor ?? (isDark() ? Colors.white70 : Colors.black54),
         fontFamily: numFontFamliy);
   }
 
-  TextStyle textStyle(
-      {Color textColor, FontWeight fontWeight, double fontSize}) {
+  TextStyle textStyle({
+    Color? textColor,
+    FontWeight? fontWeight,
+    double? fontSize,
+  }) {
     return TextStyle(
         fontFamily: fontFamily(currentFontMode),
         fontSize: fontSize ?? 20,
@@ -250,7 +264,10 @@ class AppTheme {
   }
 
   ///背景统一渐变色
-  LinearGradient containerGradient({Alignment begin, Alignment end}) {
+  LinearGradient containerGradient({
+    Alignment? begin,
+    Alignment? end,
+  }) {
     return LinearGradient(
         colors: [grandientColorStart(), grandientColorEnd()],
         begin: begin ?? Alignment.bottomLeft,
@@ -258,8 +275,11 @@ class AppTheme {
   }
 
   ///背景统一渐变色
-  LinearGradient containerGradientWithOpacity(
-      {Alignment begin, Alignment end, double opacity}) {
+  LinearGradient containerGradientWithOpacity({
+    Alignment? begin,
+    Alignment? end,
+    double? opacity,
+  }) {
     return LinearGradient(colors: [
       grandientColorStart().withOpacity(opacity ?? 1),
       grandientColorEnd().withOpacity(opacity ?? 1)

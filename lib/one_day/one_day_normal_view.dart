@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:timefly/add_habit/habit_edit_page.dart';
 import 'package:timefly/login/login_page.dart';
+import 'package:timefly/models/habit.dart';
 import 'package:timefly/models/user.dart';
 import 'package:timefly/one_day/lol_words.dart';
 import 'package:timefly/utils/date_util.dart';
@@ -13,8 +14,11 @@ class TimeAndWordView extends StatelessWidget {
   final AnimationController animationController;
   final Animation<Offset> animation;
 
-  const TimeAndWordView({Key key, this.animationController, this.animation})
-      : super(key: key);
+  const TimeAndWordView({
+    Key? key,
+    required this.animationController,
+    required this.animation,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -66,9 +70,12 @@ class OneDayTipsView extends StatelessWidget {
   final Animation<Offset> animation;
   final int habitLength;
 
-  const OneDayTipsView(
-      {Key key, this.animationController, this.animation, this.habitLength})
-      : super(key: key);
+  const OneDayTipsView({
+    Key? key,
+    required this.animationController,
+    required this.animation,
+    required this.habitLength,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +97,15 @@ class OneDayTipsView extends StatelessWidget {
                   .push(CupertinoPageRoute(builder: (context) {
                 return HabitEditPage(
                   isModify: false,
-                  habit: null,
+                  habit: Habit(
+                    id: '',
+                    name: '',
+                    iconPath: '',
+                    mainColor: 0xFF000000,
+                    remindTimes: const [],
+                    completeDays: const [],
+                    completed: false,
+                  ),
                 );
               }));
             },

@@ -9,16 +9,16 @@ class UserState extends Equatable {
   const UserState();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
 class UserLoadSuccess extends UserState {
-  final User user;
+  final User? user;
 
-  UserLoadSuccess(this.user);
+  const UserLoadSuccess(this.user);
 
   @override
-  List<Object> get props => [user];
+  List<Object?> get props => [user];
 }
 
 class UserLoadingInProgress extends UserState {}
@@ -27,16 +27,16 @@ class UserEvent extends Equatable {
   const UserEvent();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
 class UserLoginEvent extends UserEvent {
   final User user;
 
-  UserLoginEvent(this.user);
+  const UserLoginEvent(this.user);
 
   @override
-  List<Object> get props => [user];
+  List<Object?> get props => [user];
 }
 
 class UserLogoutEvent extends UserEvent {}
@@ -46,37 +46,30 @@ class UserLoadEvent extends UserEvent {}
 class UserBloc extends Bloc<UserEvent, UserState> {
   final HabitsBloc habitsBloc;
 
-  UserBloc(this.habitsBloc) : super(UserLoadSuccess(null));
-
-  @override
-  Stream<UserState> mapEventToState(UserEvent event) async* {
-    if (event is UserLoginEvent) {
-      yield* _mapUserLoginToState(event);
-    } else if (event is UserLogoutEvent) {
-      yield* _mapUserLogoutToState(event);
-    } else if (event is UserLoadEvent) {
-      yield* _mapUserLoadState(event);
-    }
+  UserBloc(this.habitsBloc) : super(const UserLoadSuccess(null)) {
+    on<UserLoginEvent>(_mapUserLoginToState);
+    on<UserLogoutEvent>(_mapUserLogoutToState);
+    on<UserLoadEvent>(_mapUserLoadState);
   }
 
-  Stream<UserState> _mapUserLoginToState(UserLoginEvent event) async* {
+  Future<void> _mapUserLoginToState(
+      UserLoginEvent event, Emitter<UserState> emit) async {
     await DatabaseProvider.db.saveUser(event.user);
-    // SessionUtils.login(event.user);
-    yield UserLoadSuccess(event.user);
+    emit(UserLoadSuccess(event.user));
     habitsBloc.add(HabitsLoad());
   }
 
-  Stream<UserState> _mapUserLogoutToState(UserLogoutEvent event) async* {
+  Future<void> _mapUserLogoutToState(
+      UserLogoutEvent event, Emitter<UserState> emit) async {
     await DatabaseProvider.db.deleteUser();
-    // SessionUtils.logout();
-    yield UserLoadSuccess(null);
+    emit(const UserLoadSuccess(null));
     habitsBloc.add(HabitsLoad());
   }
 
-  Stream<UserState> _mapUserLoadState(UserLoadEvent event) async* {
-    User user = await DatabaseProvider.db.getCurrentUser();
-    // SessionUtils.login(user);
-    yield UserLoadSuccess(user);
+  Future<void> _mapUserLoadState(
+      UserLoadEvent event, Emitter<UserState> emit) async {
+    final user = await DatabaseProvider.db.getCurrentUser();
+    emit(UserLoadSuccess(user));
     habitsBloc.add(HabitsLoad());
   }
 }

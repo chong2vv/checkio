@@ -10,27 +10,33 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
             AppThemeMode.Light, AppThemeColorMode.Blue, AppFontMode.Roboto)) {
     AppTheme.appTheme
         .setThemeState(state.themeMode, state.themeColorMode, state.fontMode);
+    on<ThemeChangeEvent>(_onThemeChange);
+    on<ThemeLoadEvnet>(_onThemeLoad);
   }
 
-  @override
-  Stream<ThemeState> mapEventToState(ThemeEvent event) async* {
-    if (event is ThemeChangeEvent) {
-      ThemeState state =
-          ThemeState(event.themeMode, event.themeColorMode, event.fontMode);
-      AppTheme.appTheme
-          .setThemeState(state.themeMode, state.themeColorMode, state.fontMode);
-      yield state;
-    } else if (event is ThemeLoadEvnet) {
-      SharedPreferences shared = await SharedPreferences.getInstance();
-      AppThemeMode appThemeMode =
-          getInitThemeMode(shared.getString(THEME_MODE));
-      AppThemeColorMode colorMode =
-          getInitColorMode(shared.getString(COLOR_MODE));
-      ThemeState state =
-          ThemeState(appThemeMode, colorMode, AppFontMode.Roboto);
-      AppTheme.appTheme
-          .setThemeState(state.themeMode, state.themeColorMode, state.fontMode);
-      yield state;
-    }
+  void _onThemeChange(ThemeChangeEvent event, Emitter<ThemeState> emit) {
+    ThemeState newState =
+        ThemeState(event.themeMode, event.themeColorMode, event.fontMode);
+    AppTheme.appTheme.setThemeState(
+        newState.themeMode, newState.themeColorMode, newState.fontMode);
+    emit(newState);
+  }
+
+  Future<void> _onThemeLoad(
+      ThemeLoadEvnet event, Emitter<ThemeState> emit) async {
+    SharedPreferences shared = await SharedPreferences.getInstance();
+    final themeModeString = shared.getString(THEME_MODE);
+    final colorModeString = shared.getString(COLOR_MODE);
+    AppThemeMode appThemeMode = themeModeString != null
+        ? getInitThemeMode(themeModeString)
+        : AppThemeMode.Light;
+    AppThemeColorMode colorMode = colorModeString != null
+        ? getInitColorMode(colorModeString)
+        : AppThemeColorMode.Blue;
+    ThemeState newState =
+        ThemeState(appThemeMode, colorMode, AppFontMode.Roboto);
+    AppTheme.appTheme.setThemeState(
+        newState.themeMode, newState.themeColorMode, newState.fontMode);
+    emit(newState);
   }
 }

@@ -7,23 +7,36 @@ class User {
   final String username;
   final String phone;
 
-  User(this.id, this.username, this.phone);
+  const User({
+    required this.id,
+    required this.username,
+    required this.phone,
+  });
 
-  static User fromJson(Map<String, dynamic> json) {
-    return User(json['id']?.toString(), json["username"]?.toString(),
-        json["phone"]?.toString());
+  static User? fromJson(Map<String, dynamic> json) {
+    final id = json['id']?.toString();
+    final username = json["username"]?.toString();
+    final phone = json["phone"]?.toString();
+    if (id == null || username == null || phone == null) {
+      return null;
+    }
+    return User(id: id, username: username, phone: phone);
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
-    data['id'] = id;
-    data["username"] = username;
-    data["phone"] = phone;
-    return data;
+    return {
+      'id': id,
+      'username': username,
+      'phone': phone,
+    };
   }
 
-  User copyWith({String id, String username, String phone}) {
-    return User(id ?? this.id, username ?? this.username, phone ?? this.phone);
+  User copyWith({String? id, String? username, String? phone}) {
+    return User(
+      id: id ?? this.id,
+      username: username ?? this.username,
+      phone: phone ?? this.phone,
+    );
   }
 }
 
@@ -32,49 +45,52 @@ class SessionUtils {
 
   factory SessionUtils() => sharedInstance();
 
-  static SessionUtils sharedInstance() {
-    return _instance;
-  }
+  static final SessionUtils _instance = SessionUtils._();
 
-  static SessionUtils _instance = SessionUtils._();
+  static SessionUtils sharedInstance() => _instance;
 
-  User currentUser;
-  HabitsBloc habitsBloc;
+  User? currentUser;
+  HabitsBloc? habitsBloc;
 
-  init() async {
+  Future<void> init() async {
     currentUser = await DatabaseProvider.db.getCurrentUser();
-    print('init user -- ${currentUser?.toJson()}');
+    if (currentUser != null) {
+      // ignore: avoid_print
+      print('init user -- ${currentUser!.toJson()}');
+    }
   }
 
   void setBloc(HabitsBloc habitsBloc) {
     this.habitsBloc = habitsBloc;
   }
 
-  void login(User user) async {
-    if (currentUser != null) {
-      await DatabaseProvider.db.deleteUser();
-    }
+  Future<void> login(User user) async {
+    await DatabaseProvider.db.deleteUser();
     currentUser = user;
     await DatabaseProvider.db.saveUser(user);
-    habitsBloc.add(HabitsLoad());
+    habitsBloc?.add(HabitsLoad());
   }
 
-  void logout() async {
+  Future<void> logout() async {
     currentUser = null;
     await DatabaseProvider.db.deleteUser();
-    habitsBloc.add(HabitsLoad());
+    habitsBloc?.add(HabitsLoad());
   }
 
-  void updateName(String name) async {
-    currentUser = currentUser.copyWith(username: name);
-    await DatabaseProvider.db.updateUser(currentUser);
+  Future<void> updateName(String name) async {
+    final user = currentUser;
+    if (user == null) {
+      return;
+    }
+    currentUser = user.copyWith(username: name);
+    await DatabaseProvider.db.updateUser(currentUser!);
   }
 
   bool isLogin() {
     return currentUser != null;
   }
 
-  String getUserId() {
+  String? getUserId() {
     return currentUser?.id;
   }
 }

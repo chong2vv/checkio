@@ -11,16 +11,16 @@ class DatabaseProvider {
   static const String RECORDS = 'records';
 
   ///my database
-  Database _database;
+  Database? _database;
 
   Future<Database> get database async {
     if (_database != null) {
-      return _database;
+      return _database!;
     }
 
     _database = await createDatabase();
 
-    return _database;
+    return _database!;
   }
 
   Future<Database> createDatabase() async {
@@ -63,7 +63,7 @@ class DatabaseProvider {
     );
   }
 
-  Future<User> getCurrentUser() async {
+  Future<User?> getCurrentUser() async {
     final db = await database;
     var users = await db.query("user");
     if (users.isEmpty) {
@@ -104,7 +104,8 @@ class DatabaseProvider {
       Habit habit = Habit.fromJson(element, records: records);
       newHabitList.add(habit);
     }
-    newHabitList.sort((a, b) => b.createTime - a.createTime);
+    newHabitList
+        .sort((a, b) => (b.createTime ?? 0).compareTo(a.createTime ?? 0));
     return newHabitList;
   }
 
@@ -120,7 +121,8 @@ class DatabaseProvider {
       Habit habit = Habit.fromJson(element, records: records);
       newHabitList.add(habit);
     }
-    newHabitList.sort((a, b) => b.createTime - a.createTime);
+    newHabitList
+        .sort((a, b) => (b.createTime ?? 0).compareTo(a.createTime ?? 0));
     return newHabitList;
   }
 
@@ -132,33 +134,36 @@ class DatabaseProvider {
     habits.forEach((element) {
       newHabitList.add(Habit.fromJson(element));
     });
-    newHabitList.sort((a, b) => b.createTime - a.createTime);
+    newHabitList
+        .sort((a, b) => (b.createTime ?? 0).compareTo(a.createTime ?? 0));
     return newHabitList;
   }
 
   /// 根据 habitId和时间范围筛选出符合条件的记录
-  Future<List<HabitRecord>> getHabitRecords(String habitId,
-      {DateTime start, DateTime end}) async {
-    final db = await database;
-    var records = List.from(
-        await db.query(RECORDS, where: 'habitId = ?', whereArgs: [habitId]));
-    List<HabitRecord> habitRecords = [];
-    if (records != null && records.length > 0) {
-      if (start != null && end != null) {
-        records = records
-            .where((element) =>
-                element['time'] > start.millisecondsSinceEpoch &&
-                element['time'] < end.millisecondsSinceEpoch)
-            .toList();
-        records.sort((a, b) => b['time'] - a['time']);
-      } else {
-        records.sort((a, b) => b['time'] - a['time']);
-      }
-      records.forEach((element) {
-        habitRecords.add(HabitRecord.fromJson(element));
-      });
+  Future<List<HabitRecord>> getHabitRecords(String? habitId,
+      {DateTime? start, DateTime? end}) async {
+    if (habitId == null) {
+      return [];
     }
-    return habitRecords;
+    final db = await database;
+    var rawRecords =
+        await db.query(RECORDS, where: 'habitId = ?', whereArgs: [habitId]);
+    if (rawRecords.isEmpty) {
+      return [];
+    }
+    if (end != null && start != null) {
+      rawRecords = rawRecords.where((element) {
+        final time = element['time'] as int? ?? 0;
+        return time > start.millisecondsSinceEpoch &&
+            time < end.millisecondsSinceEpoch;
+      }).toList();
+    }
+    rawRecords.sort((a, b) {
+      final aTime = a['time'] as int? ?? 0;
+      final bTime = b['time'] as int? ?? 0;
+      return bTime.compareTo(aTime);
+    });
+    return rawRecords.map(HabitRecord.fromJson).toList();
   }
 
   ///获取天数分类习惯个数，用于’我的一天‘页面分类
@@ -169,7 +174,7 @@ class DatabaseProvider {
     return habits.length;
   }
 
-  Future<Habit> insert(Habit habit) async {
+  Future<Habit?> insert(Habit habit) async {
     final db = await database;
     var queryHabits =
         await db.query('habits', where: 'id = ?', whereArgs: [habit.id]);

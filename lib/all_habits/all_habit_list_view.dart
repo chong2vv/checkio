@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:timefly/all_habits/all_habit_item_view.dart';
-import 'package:timefly/db/database_provider.dart';
 import 'package:timefly/models/habit.dart';
 
 class AllHabitListView extends StatefulWidget {
   final List<Habit> habits;
 
-  const AllHabitListView({Key key, this.habits}) : super(key: key);
+  const AllHabitListView({Key? key, required this.habits}) : super(key: key);
 
   @override
   _AllHabitListViewState createState() => _AllHabitListViewState();
@@ -16,7 +15,7 @@ class _AllHabitListViewState extends State<AllHabitListView>
     with AutomaticKeepAliveClientMixin {
   final ScrollController scrollController = ScrollController();
 
-  Habit _selectedHabit;
+  Habit? _selectedHabit;
 
   double _listPadding = 16;
 
@@ -64,13 +63,16 @@ class _AllHabitListViewState extends State<AllHabitListView>
       //Open tapped habit card and scroll to it
       else {
         _selectedHabit = data;
-        var selectedIndex = widget.habits.indexOf(_selectedHabit);
-        var closedHeight = AllHabitItemView.nominalHeightClosed;
-        //Calculate scrollTo offset, subtract a bit so we don't end up perfectly at the top
-        var offset =
-            selectedIndex * (closedHeight + _listPadding) - closedHeight * .8;
-        scrollController.animateTo(offset,
-            duration: Duration(milliseconds: 700), curve: Curves.easeOutQuad);
+        final selectedHabit = _selectedHabit;
+        if (selectedHabit != null) {
+          var selectedIndex = widget.habits.indexOf(selectedHabit);
+          var closedHeight = AllHabitItemView.nominalHeightClosed;
+          //Calculate scrollTo offset, subtract a bit so we don't end up perfectly at the top
+          var offset =
+              selectedIndex * (closedHeight + _listPadding) - closedHeight * .8;
+          scrollController.animateTo(offset,
+              duration: Duration(milliseconds: 700), curve: Curves.easeOutQuad);
+        }
       }
     });
   }

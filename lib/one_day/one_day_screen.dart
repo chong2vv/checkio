@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:timefly/app_theme.dart';
 import 'package:timefly/blocs/habit/habit_bloc.dart';
 import 'package:timefly/blocs/habit/habit_state.dart';
-import 'package:timefly/blocs/user_bloc.dart';
 import 'package:timefly/models/habit.dart';
 import 'package:timefly/models/habit_list_model.dart';
 import 'package:timefly/models/habit_peroid.dart';
@@ -25,14 +24,14 @@ class OneDayScreen extends StatefulWidget {
 class _OneDayScreenState extends State<OneDayScreen>
     with TickerProviderStateMixin {
   ///整个页面动画控制器
-  AnimationController screenAnimationController;
+  late AnimationController screenAnimationController;
 
   @override
   void initState() {
+    super.initState();
     screenAnimationController =
         AnimationController(duration: Duration(milliseconds: 800), vsync: this);
     screenAnimationController.forward();
-    super.initState();
   }
 
   @override
@@ -58,7 +57,7 @@ class _OneDayScreenState extends State<OneDayScreen>
                 itemCount: listData.length,
                 itemBuilder: (context, index) {
                   OnDayHabitListData data = listData[index];
-                  Widget widget;
+                  Widget? widget;
                   switch (data.type) {
                     case OnDayHabitListData.typeHeader:
                       widget = TimeAndWordView(
@@ -116,8 +115,11 @@ class _OneDayScreenState extends State<OneDayScreen>
                                         curve: Curves.fastOutSlowIn))),
                       );
                       break;
+                    default:
+                      widget = Container();
+                      break;
                   }
-                  return widget;
+                  return widget ?? Container();
                 });
           }
           return Container();
@@ -133,13 +135,17 @@ class _OneDayScreenState extends State<OneDayScreen>
     int weekend = DateTime.now().weekday;
     int dayPeroidHabitCount = habits
         .where((element) =>
-            element.period == HabitPeriod.day &&
+            (element.period ?? HabitPeriod.month) == HabitPeriod.day &&
             element.completeDays.contains(weekend))
         .length;
-    int weekPeroidHabitCount =
-        habits.where((element) => element.period == HabitPeriod.week).length;
-    int monthPeroidHabitCount =
-        habits.where((element) => element.period == HabitPeriod.month).length;
+    int weekPeroidHabitCount = habits
+        .where((element) =>
+            (element.period ?? HabitPeriod.month) == HabitPeriod.week)
+        .length;
+    int monthPeroidHabitCount = habits
+        .where((element) =>
+            (element.period ?? HabitPeriod.month) == HabitPeriod.month)
+        .length;
 
     if (dayPeroidHabitCount == 0 &&
         weekPeroidHabitCount == 0 &&
@@ -164,7 +170,7 @@ class _OneDayScreenState extends State<OneDayScreen>
     return datas;
   }
 
-  Widget getTitleView(String title, Animation animation,
+  Widget getTitleView(String title, Animation<double> animation,
       AnimationController animationController) {
     return AnimatedBuilder(
       animation: animationController,

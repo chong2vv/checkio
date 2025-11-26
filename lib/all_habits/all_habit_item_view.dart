@@ -13,24 +13,29 @@ class AllHabitItemView extends StatefulWidget {
   static double nominalHeightOpen = 287;
   final Habit habit;
 
-  final Function(Habit) onTap;
+  final Function(Habit)? onTap;
   final bool isOpen;
 
-  const AllHabitItemView({Key key, this.habit, this.onTap, this.isOpen})
-      : super(key: key);
+  const AllHabitItemView({
+    Key? key,
+    required this.habit,
+    this.onTap,
+    required this.isOpen,
+  }) : super(key: key);
 
   @override
   _AllHabitItemViewState createState() => _AllHabitItemViewState();
 }
 
 class _AllHabitItemViewState extends State<AllHabitItemView> {
-  bool _wasOpen;
+  late bool _wasOpen;
 
   double ratio = 1.8;
 
   @override
   void initState() {
     super.initState();
+    _wasOpen = widget.isOpen;
   }
 
   @override
@@ -112,24 +117,28 @@ class _AllHabitItemViewState extends State<AllHabitItemView> {
                   decoration: BoxDecoration(
                       boxShadow: <BoxShadow>[
                         BoxShadow(
-                            color:
-                                Color(widget.habit.mainColor).withOpacity(0.3),
+                            color: Color(widget.habit.mainColor ?? 0xFF000000)
+                                .withOpacity(0.3),
                             offset: Offset(0, 3),
                             blurRadius: 6)
                       ],
                       shape: BoxShape.circle,
-                      color: Color(widget.habit.mainColor).withOpacity(0.5)),
+                      color: Color(widget.habit.mainColor ?? 0xFF000000)
+                          .withOpacity(0.5)),
                   width: 60,
                   height: 60,
-                  child: Image.asset(widget.habit.iconPath),
+                  child: Image.asset(widget.habit.iconPath ?? ''),
                 ),
                 onTap: () async {
-                  await Navigator.of(context)
-                      .push(CupertinoPageRoute(builder: (context) {
-                    return HabitDetailPage(
-                      habitId: widget.habit.id,
-                    );
-                  }));
+                  final habitId = widget.habit.id;
+                  if (habitId != null) {
+                    await Navigator.of(context)
+                        .push(CupertinoPageRoute(builder: (context) {
+                      return HabitDetailPage(
+                        habitId: habitId,
+                      );
+                    }));
+                  }
                 },
               ),
               Container(
@@ -139,9 +148,9 @@ class _AllHabitItemViewState extends State<AllHabitItemView> {
                 decoration: BoxDecoration(
                     shape: BoxShape.rectangle,
                     borderRadius: BorderRadius.all(Radius.circular(3)),
-                    color: Color(widget.habit.mainColor)),
+                    color: Color(widget.habit.mainColor ?? 0xFF000000)),
                 child: Text(
-                  '${HabitPeriod.getPeriod(widget.habit.period)}',
+                  '${HabitPeriod.getPeriod(widget.habit.period ?? 0)}',
                   style: AppTheme.appTheme.numHeadline1(
                       fontSize: 11,
                       textColor: Colors.white,
@@ -166,7 +175,7 @@ class _AllHabitItemViewState extends State<AllHabitItemView> {
             width: 16,
           ),
           Expanded(
-            child: Text(widget.habit.name,
+            child: Text(widget.habit.name ?? '',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: AppTheme.appTheme
@@ -239,7 +248,7 @@ class _AllHabitItemViewState extends State<AllHabitItemView> {
             SizedBox(
               width: 16,
             ),
-            Text(widget.habit.name,
+            Text(widget.habit.name ?? '',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: AppTheme.appTheme
@@ -263,14 +272,14 @@ class _AllHabitItemViewState extends State<AllHabitItemView> {
                           decoration: BoxDecoration(
                               color:
                                   widget.habit.completeDays.contains(index + 1)
-                                      ? Color(widget.habit.mainColor)
+                                      ? Color(widget.habit.mainColor ?? 0xFF000000)
                                       : AppTheme.appTheme.cardBackgroundColor(),
                               shape: BoxShape.rectangle,
                               border:
                                   widget.habit.completeDays.contains(index + 1)
                                       ? null
                                       : Border.all(
-                                          color: Color(widget.habit.mainColor)
+                                          color: Color(widget.habit.mainColor ?? 0xFF000000)
                                               .withOpacity(0.5),
                                           width: 1),
                               borderRadius:
@@ -317,8 +326,6 @@ class _AllHabitItemViewState extends State<AllHabitItemView> {
   }
 
   void _handleTap() {
-    if (widget.onTap != null) {
-      widget.onTap(widget.habit);
-    }
+    widget.onTap?.call(widget.habit);
   }
 }

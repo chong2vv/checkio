@@ -13,11 +13,13 @@ import 'package:timefly/models/user.dart';
 class UserInfoView extends StatelessWidget {
   final VoidCallback callback;
 
-  const UserInfoView({Key key, this.callback}) : super(key: key);
+  const UserInfoView({Key? key, required this.callback}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    User user = SessionUtils.sharedInstance().currentUser;
+    final user = SessionUtils.sharedInstance().currentUser;
+    final displayName =
+        (user == null || user.username.isEmpty) ? '编辑名字' : user.username;
     return Container(
       margin: EdgeInsets.only(
           left: 16, top: MediaQuery.of(context).padding.top + 16),
@@ -45,7 +47,7 @@ class UserInfoView extends StatelessWidget {
                 }));
                 return;
               }
-              if (user.username == null || user.username.isEmpty) {
+              if (user.username.isEmpty) {
                 await Navigator.of(context)
                     .push(CupertinoPageRoute(builder: (context) {
                   return SettingsScreen();
@@ -54,7 +56,7 @@ class UserInfoView extends StatelessWidget {
               }
             },
             child: Text(
-              '${(user == null || user.username == null || user.username.isEmpty) ? '编辑名字' : user.username}',
+              displayName,
               style: AppTheme.appTheme
                   .headline1(fontWeight: FontWeight.bold, fontSize: 22),
             ),
@@ -246,19 +248,23 @@ class EnterView extends StatelessWidget {
     );
   }
 
-  Widget _item(String iconPath, String text, Function onTap,
-      {BoxDecoration decoration, bool colored = false}) {
+  Widget _item(
+    String iconPath,
+    String text,
+    VoidCallback onTap, {
+    BoxDecoration? decoration,
+    bool colored = false,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.all(16),
-        decoration: decoration == null
-            ? BoxDecoration(
+        decoration: decoration ??
+            BoxDecoration(
                 shape: BoxShape.rectangle,
                 borderRadius: BorderRadius.all(Radius.circular(12)),
                 color: AppTheme.appTheme.cardBackgroundColor(),
-                boxShadow: AppTheme.appTheme.containerBoxShadow())
-            : decoration,
+                boxShadow: AppTheme.appTheme.containerBoxShadow()),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

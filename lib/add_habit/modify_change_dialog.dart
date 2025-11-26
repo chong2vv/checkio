@@ -1,22 +1,14 @@
-import 'package:alarm_plugin/alarm_event.dart';
-import 'package:alarm_plugin/alarm_plugin.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:timefly/app_theme.dart';
-import 'package:timefly/blocs/habit/habit_bloc.dart';
-import 'package:timefly/blocs/habit/habit_event.dart';
-import 'package:timefly/models/habit.dart';
-import 'package:timefly/utils/flash_helper.dart';
 
 class ModifyChangeDialog extends StatefulWidget {
   final String title;
   final String subTitle;
 
   const ModifyChangeDialog({
-    Key key,
-    this.title,
-    this.subTitle,
+    Key? key,
+    required this.title,
+    required this.subTitle,
   }) : super(key: key);
 
   @override
@@ -25,14 +17,14 @@ class ModifyChangeDialog extends StatefulWidget {
 
 class _ModifyChangeDialogState extends State<ModifyChangeDialog>
     with SingleTickerProviderStateMixin {
-  AnimationController animationController;
+  late final AnimationController _animationController;
 
   @override
   void initState() {
     super.initState();
-    animationController =
-        AnimationController(duration: Duration(milliseconds: 300), vsync: this);
-    animationController.forward();
+    _animationController =
+        AnimationController(duration: Duration(milliseconds: 300), vsync: this)
+          ..forward();
   }
 
   @override
@@ -40,7 +32,7 @@ class _ModifyChangeDialogState extends State<ModifyChangeDialog>
     return Center(
       child: ScaleTransition(
         scale: Tween<double>(begin: 0.2, end: 1).animate(CurvedAnimation(
-            parent: animationController, curve: Curves.easeOutBack)),
+            parent: _animationController, curve: Curves.easeOutBack)),
         child: Container(
           alignment: Alignment.center,
           padding: EdgeInsets.all(16),
@@ -107,7 +99,7 @@ class _ModifyChangeDialogState extends State<ModifyChangeDialog>
 
   @override
   void dispose() {
-    animationController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 }

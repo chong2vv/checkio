@@ -103,8 +103,8 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
             .firstWhere((habit) => habit.id == event.habitId);
         records = habit.records;
 
-        if (records != null && records.length > 0) {
-          if (event.start != null && event.end != null) {
+        if (records.length > 0) {
+          if (event.end != null) {
             records = records
                 .where((element) =>
                     element.time > event.start.millisecondsSinceEpoch &&

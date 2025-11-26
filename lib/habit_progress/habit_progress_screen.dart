@@ -21,15 +21,15 @@ class HabitProgressScreen extends StatefulWidget {
 
 class _HabitProgressScreenState extends State<HabitProgressScreen>
     with TickerProviderStateMixin {
-  TabController _tabController;
+  late TabController _tabController;
 
   @override
   void initState() {
+    super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() {
       print(_tabController.index);
     });
-    super.initState();
   }
 
   @override
@@ -47,13 +47,16 @@ class _HabitProgressScreenState extends State<HabitProgressScreen>
         }
         List<Habit> _habits = (state as HabitLoadSuccess).habits;
         int dayPeriodHabitCount = _habits
-            .where((element) => element.period == HabitPeriod.day)
+            .where((element) =>
+                (element.period ?? HabitPeriod.month) == HabitPeriod.day)
             .length;
         int weekPeriodHabitCount = _habits
-            .where((element) => element.period == HabitPeriod.week)
+            .where((element) =>
+                (element.period ?? HabitPeriod.month) == HabitPeriod.week)
             .length;
         int monthPeriodHabitCount = _habits
-            .where((element) => element.period == HabitPeriod.month)
+            .where((element) =>
+                (element.period ?? HabitPeriod.month) == HabitPeriod.month)
             .length;
 
         return ListView(
@@ -107,7 +110,10 @@ class _HabitProgressScreenState extends State<HabitProgressScreen>
 class TotalCheckAndDaysView extends StatelessWidget {
   final List<Habit> habits;
 
-  const TotalCheckAndDaysView({Key key, this.habits}) : super(key: key);
+  const TotalCheckAndDaysView({
+    Key? key,
+    required this.habits,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -187,7 +193,10 @@ class TotalCheckAndDaysView extends StatelessWidget {
 class MostChecksView extends StatelessWidget {
   final List<Habit> habits;
 
-  const MostChecksView({Key key, this.habits}) : super(key: key);
+  const MostChecksView({
+    Key? key,
+    required this.habits,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -249,7 +258,10 @@ class MostChecksView extends StatelessWidget {
 class MostStreaksView extends StatelessWidget {
   final List<Habit> habits;
 
-  const MostStreaksView({Key key, this.habits}) : super(key: key);
+  const MostStreaksView({
+    Key? key,
+    required this.habits,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -312,16 +324,20 @@ class MostStreaksView extends StatelessWidget {
 class HabitItemView extends StatelessWidget {
   final Habit habit;
 
-  const HabitItemView({Key key, this.habit}) : super(key: key);
+  const HabitItemView({
+    Key? key,
+    required this.habit,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final mainColor = habit.mainColor ?? 0xFF000000;
     return Container(
       padding: EdgeInsets.only(left: 12, top: 2, right: 12, bottom: 2),
       decoration: BoxDecoration(
         boxShadow: <BoxShadow>[
           BoxShadow(
-              color: Color(habit.mainColor).withOpacity(0.3),
+              color: Color(mainColor).withOpacity(0.3),
               offset: Offset(3, 3),
               blurRadius: 10)
         ],
@@ -331,7 +347,7 @@ class HabitItemView extends StatelessWidget {
             bottomLeft: Radius.circular(25),
             topRight: Radius.circular(8),
             bottomRight: Radius.circular(8)),
-        color: Color(habit.mainColor),
+        color: Color(mainColor),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -343,12 +359,12 @@ class HabitItemView extends StatelessWidget {
             ),
             width: 32,
             height: 32,
-            child: Image.asset(habit.iconPath),
+            child: Image.asset(habit.iconPath ?? ''),
           ),
           SizedBox(
             width: 4,
           ),
-          Text(habit.name,
+          Text(habit.name ?? '',
               style: AppTheme.appTheme.headline1(
                   textColor: Colors.white,
                   fontSize: 14,

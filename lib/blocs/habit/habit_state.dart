@@ -6,7 +6,7 @@ abstract class HabitsState extends Equatable {
   const HabitsState();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
 ///正在加载习惯列表 显示 loading样式
@@ -19,10 +19,8 @@ class HabitLoadSuccess extends HabitsState {
   const HabitLoadSuccess(this.habits);
 
   @override
-  List<Object> get props => [habits];
+  List<Object?> get props => [habits];
 }
 
 ///习惯加载失败，显示异常UI
-class HabitsLodeFailure extends HabitsState {
-
-}
+class HabitsLodeFailure extends HabitsState {}

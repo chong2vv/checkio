@@ -143,11 +143,11 @@ class ChangeUserInfoView extends StatefulWidget {
 }
 
 class _ChangeUserInfoViewState extends State<ChangeUserInfoView> {
-  String userName;
+  String userName = '';
 
   @override
   void initState() {
-    userName = SessionUtils.sharedInstance().currentUser.username;
+    userName = SessionUtils.sharedInstance().currentUser?.username ?? '';
     super.initState();
   }
 
@@ -210,7 +210,7 @@ class _ChangeUserInfoViewState extends State<ChangeUserInfoView> {
                 color: AppTheme.appTheme.containerBackgroundColor()),
             height: 65,
             child: Text(
-              SessionUtils.sharedInstance().currentUser.phone,
+              SessionUtils.sharedInstance().currentUser?.phone ?? '',
               style: AppTheme.appTheme.numHeadline1(
                   fontWeight: FontWeight.bold,
                   fontSize: 23,
@@ -229,9 +229,12 @@ class DarkModeView extends StatefulWidget {
 
   final AppFontMode appFontMode;
 
-  const DarkModeView(
-      {Key key, this.appThemeMode, this.appThemeColorMode, this.appFontMode})
-      : super(key: key);
+  const DarkModeView({
+    Key? key,
+    required this.appThemeMode,
+    required this.appThemeColorMode,
+    required this.appFontMode,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -290,7 +293,7 @@ class _DarkModeViewState extends State<DarkModeView> {
                 SharedPreferences shared =
                     await SharedPreferences.getInstance();
                 setState(() {
-                  checked = value;
+                  checked = value ?? false;
                   BlocProvider.of<ThemeBloc>(context).add(ThemeChangeEvent(
                       checked ? AppThemeMode.Dark : AppThemeMode.Light,
                       widget.appThemeColorMode,

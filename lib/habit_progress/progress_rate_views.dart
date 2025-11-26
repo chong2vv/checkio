@@ -13,8 +13,11 @@ class ProgressRateView extends StatelessWidget {
   final List<Habit> allHabits;
   final int period;
 
-  const ProgressRateView({Key key, this.allHabits, this.period})
-      : super(key: key);
+  const ProgressRateView({
+    Key? key,
+    required this.allHabits,
+    required this.period,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -208,7 +211,8 @@ class ProgressRateView extends StatelessWidget {
 
   List<Pair<int>> _getDayPeriodRates() {
     List<Habit> habits = allHabits
-        .where((element) => element.period == HabitPeriod.day)
+        .where((element) =>
+            (element.period ?? HabitPeriod.month) == HabitPeriod.day)
         .toList();
     final DateTime now = DateTime.now();
     DateTime start;
@@ -220,12 +224,11 @@ class ProgressRateView extends StatelessWidget {
     int oneDayNeedDoNum = 0;
     int oneDayHasDoneNum = 0;
     habits.forEach((habit) {
-      oneDayNeedDoNum += habit.doNum *
-          DateUtil.filterCreateDays(
-              habit.completeDays,
-              DateTime.fromMillisecondsSinceEpoch(habit.createTime),
-              end,
-              start);
+      final doNum = habit.doNum ?? 1;
+      final createTime = habit.createTime ?? 0;
+      oneDayNeedDoNum += doNum *
+          DateUtil.filterCreateDays(habit.completeDays,
+              DateTime.fromMillisecondsSinceEpoch(createTime), end, start);
       oneDayHasDoneNum +=
           HabitUtil.getDoCountOfHabit(habit.records, end, start);
     });
@@ -236,12 +239,11 @@ class ProgressRateView extends StatelessWidget {
     int sevenDaysHasDoneNum = 0;
 
     habits.forEach((habit) {
-      sevenDaysNeedDoNum += habit.doNum *
-          DateUtil.filterCreateDays(
-              habit.completeDays,
-              DateTime.fromMillisecondsSinceEpoch(habit.createTime),
-              end,
-              start);
+      final doNum = habit.doNum ?? 1;
+      final createTime = habit.createTime ?? 0;
+      sevenDaysNeedDoNum += doNum *
+          DateUtil.filterCreateDays(habit.completeDays,
+              DateTime.fromMillisecondsSinceEpoch(createTime), end, start);
       sevenDaysHasDoneNum +=
           HabitUtil.getDoCountOfHabit(habit.records, end, start);
     });
@@ -252,12 +254,11 @@ class ProgressRateView extends StatelessWidget {
     int fivesDaysHasDoneNum = 0;
 
     habits.forEach((habit) {
-      fivesDaysNeedDoNum += habit.doNum *
-          DateUtil.filterCreateDays(
-              habit.completeDays,
-              DateTime.fromMillisecondsSinceEpoch(habit.createTime),
-              end,
-              start);
+      final doNum = habit.doNum ?? 1;
+      final createTime = habit.createTime ?? 0;
+      fivesDaysNeedDoNum += doNum *
+          DateUtil.filterCreateDays(habit.completeDays,
+              DateTime.fromMillisecondsSinceEpoch(createTime), end, start);
       fivesDaysHasDoneNum +=
           HabitUtil.getDoCountOfHabit(habit.records, end, start);
     });
@@ -278,13 +279,14 @@ class ProgressRateView extends StatelessWidget {
     DateTime end = oneWeek.x1;
     List<Habit> oneWeekHabits = allHabits
         .where((element) =>
-            element.period == HabitPeriod.week &&
-            element.createTime < DateUtil.endOfDay(end).millisecondsSinceEpoch)
+            (element.period ?? HabitPeriod.month) == HabitPeriod.week &&
+            (element.createTime ?? 0) <
+                DateUtil.endOfDay(end).millisecondsSinceEpoch)
         .toList();
     int oneWeekNeedDoNum = 0;
     int oneWeekHasDoneNum = 0;
     oneWeekHabits.forEach((habit) {
-      oneWeekNeedDoNum += habit.doNum;
+      oneWeekNeedDoNum += habit.doNum ?? 1;
       oneWeekHasDoneNum +=
           HabitUtil.getDoCountOfHabit(habit.records, start, end);
     });
@@ -296,14 +298,15 @@ class ProgressRateView extends StatelessWidget {
 
     List<Habit> oneWeekAgoHabits = allHabits
         .where((element) =>
-            element.period == HabitPeriod.week &&
-            element.createTime < DateUtil.endOfDay(end).millisecondsSinceEpoch)
+            (element.period ?? HabitPeriod.month) == HabitPeriod.week &&
+            (element.createTime ?? 0) <
+                DateUtil.endOfDay(end).millisecondsSinceEpoch)
         .toList();
 
     int oneWeekAgoNeedDoNum = 0;
     int oneWeekAgoHasDoneNum = 0;
     oneWeekAgoHabits.forEach((habit) {
-      oneWeekAgoNeedDoNum += habit.doNum;
+      oneWeekAgoNeedDoNum += habit.doNum ?? 1;
       oneWeekAgoHasDoneNum +=
           HabitUtil.getDoCountOfHabit(habit.records, start, end);
     });
@@ -315,14 +318,15 @@ class ProgressRateView extends StatelessWidget {
 
     List<Habit> twoWeekAgoHabits = allHabits
         .where((element) =>
-            element.period == HabitPeriod.week &&
-            element.createTime < DateUtil.endOfDay(end).millisecondsSinceEpoch)
+            (element.period ?? HabitPeriod.month) == HabitPeriod.week &&
+            (element.createTime ?? 0) <
+                DateUtil.endOfDay(end).millisecondsSinceEpoch)
         .toList();
 
     int twoWeekAgoNeedDoNum = 0;
     int twoWeekAgoHasDoneNum = 0;
     twoWeekAgoHabits.forEach((habit) {
-      twoWeekAgoNeedDoNum += habit.doNum;
+      twoWeekAgoNeedDoNum += habit.doNum ?? 1;
       twoWeekAgoHasDoneNum +=
           HabitUtil.getDoCountOfHabit(habit.records, start, end);
     });
@@ -343,13 +347,14 @@ class ProgressRateView extends StatelessWidget {
     DateTime end = oneMonth.x1;
     List<Habit> oneMonthHabits = allHabits
         .where((element) =>
-            element.period == HabitPeriod.month &&
-            element.createTime < DateUtil.endOfDay(end).millisecondsSinceEpoch)
+            (element.period ?? HabitPeriod.month) == HabitPeriod.month &&
+            (element.createTime ?? 0) <
+                DateUtil.endOfDay(end).millisecondsSinceEpoch)
         .toList();
     int oneMonthNeedDoNum = 0;
     int oneMonthHasDoneNum = 0;
     oneMonthHabits.forEach((habit) {
-      oneMonthNeedDoNum += habit.doNum;
+      oneMonthNeedDoNum += habit.doNum ?? 1;
       oneMonthHasDoneNum +=
           HabitUtil.getDoCountOfHabit(habit.records, start, end);
     });
@@ -361,14 +366,15 @@ class ProgressRateView extends StatelessWidget {
 
     List<Habit> oneMonthAgoHabits = allHabits
         .where((element) =>
-            element.period == HabitPeriod.month &&
-            element.createTime < DateUtil.endOfDay(end).millisecondsSinceEpoch)
+            (element.period ?? HabitPeriod.month) == HabitPeriod.month &&
+            (element.createTime ?? 0) <
+                DateUtil.endOfDay(end).millisecondsSinceEpoch)
         .toList();
 
     int oneMonthAgoNeedDoNum = 0;
     int oneMonthAgoHasDoneNum = 0;
     oneMonthAgoHabits.forEach((habit) {
-      oneMonthAgoNeedDoNum += habit.doNum;
+      oneMonthAgoNeedDoNum += habit.doNum ?? 1;
       oneMonthAgoHasDoneNum +=
           HabitUtil.getDoCountOfHabit(habit.records, start, end);
     });
@@ -380,14 +386,15 @@ class ProgressRateView extends StatelessWidget {
 
     List<Habit> twoMonthAgoHabits = allHabits
         .where((element) =>
-            element.period == HabitPeriod.month &&
-            element.createTime < DateUtil.endOfDay(end).millisecondsSinceEpoch)
+            (element.period ?? HabitPeriod.month) == HabitPeriod.month &&
+            (element.createTime ?? 0) <
+                DateUtil.endOfDay(end).millisecondsSinceEpoch)
         .toList();
 
     int twoMonthAgoNeedDoNum = 0;
     int twoMonthAgoHasDoneNum = 0;
     twoMonthAgoHabits.forEach((habit) {
-      twoMonthAgoNeedDoNum += habit.doNum;
+      twoMonthAgoNeedDoNum += habit.doNum ?? 1;
       twoMonthAgoHasDoneNum +=
           HabitUtil.getDoCountOfHabit(habit.records, start, end);
     });

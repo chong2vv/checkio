@@ -32,8 +32,8 @@ class _FluidNavBarButtonState extends State<FluidNavBarButton> with SingleTicker
   bool _selected;
   FluidNavBarButtonPressedCallback _onPressed;
 
-  AnimationController _animationController;
-  Animation<double> _animation;
+  late AnimationController _animationController;
+  late Animation<double> _animation;
 
   _FluidNavBarButtonState(FluidFillIconData iconData, bool selected, FluidNavBarButtonPressedCallback onPressed)
       : _iconData = iconData,
@@ -42,6 +42,7 @@ class _FluidNavBarButtonState extends State<FluidNavBarButton> with SingleTicker
 
   @override
   void initState() {
+    super.initState();
     _animationController = AnimationController(
         duration: const Duration(milliseconds: 1666),
         reverseDuration: const Duration(milliseconds: 833),

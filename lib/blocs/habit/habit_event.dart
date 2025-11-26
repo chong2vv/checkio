@@ -6,7 +6,7 @@ class HabitsEvent extends Equatable {
   const HabitsEvent();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
 ///加载数据库数据事件
@@ -16,18 +16,18 @@ class HabitsLoad extends HabitsEvent {}
 class HabitsAdd extends HabitsEvent {
   final Habit habit;
 
-  HabitsAdd(this.habit);
+  const HabitsAdd(this.habit);
 
   @override
-  List<Object> get props => [habit];
+  List<Object?> get props => [habit];
 }
 
 ///更新
 class HabitUpdate extends HabitsEvent {
   final Habit habit;
 
-  HabitUpdate(this.habit);
+  const HabitUpdate(this.habit);
 
   @override
-  List<Object> get props => [habit];
+  List<Object?> get props => [habit];
 }

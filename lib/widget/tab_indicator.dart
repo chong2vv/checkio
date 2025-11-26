@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class BorderTabIndicator extends Decoration {
-  BorderTabIndicator({this.indicatorHeight, this.textScaleFactor}) : super();
+  BorderTabIndicator({
+    this.indicatorHeight,
+    this.textScaleFactor,
+  }) : super();
 
-  final double indicatorHeight;
-  final double textScaleFactor;
+  final double? indicatorHeight;
+  final double? textScaleFactor;
 
   @override
-  _BorderPainter createBoxPainter([VoidCallback onChanged]) {
+  _BorderPainter createBoxPainter([VoidCallback? onChanged]) {
     return _BorderPainter(this, indicatorHeight, textScaleFactor, onChanged);
   }
 }
@@ -18,23 +20,24 @@ class _BorderPainter extends BoxPainter {
     this.decoration,
     this.indicatorHeight,
     this.textScaleFactor,
-    VoidCallback onChanged,
-  )   : assert(decoration != null),
-        assert(indicatorHeight >= 0),
+    VoidCallback? onChanged,
+  )   : assert(indicatorHeight == null || indicatorHeight >= 0),
         super(onChanged);
 
   final BorderTabIndicator decoration;
-  final double indicatorHeight;
-  final double textScaleFactor;
+  final double? indicatorHeight;
+  final double? textScaleFactor;
 
   @override
   void paint(Canvas canvas, Offset offset, ImageConfiguration configuration) {
-    assert(configuration != null);
-    assert(configuration.size != null);
-    final horizontalInset = 16 - 4 * textScaleFactor;
+    final size = configuration.size;
+    if (size == null) return;
+    final indicatorHeightValue = indicatorHeight ?? 36.0;
+    final textScaleFactorValue = textScaleFactor ?? 1.0;
+    final horizontalInset = 16 - 4 * textScaleFactorValue;
     final rect = Offset(offset.dx + horizontalInset,
-            (configuration.size.height / 2) - indicatorHeight / 2 - 1) &
-        Size(configuration.size.width - 2 * horizontalInset, indicatorHeight);
+            (size.height / 2) - indicatorHeightValue / 2 - 1) &
+        Size(size.width - 2 * horizontalInset, indicatorHeightValue);
     final paint = Paint();
     paint.color = Colors.white;
     paint.style = PaintingStyle.stroke;

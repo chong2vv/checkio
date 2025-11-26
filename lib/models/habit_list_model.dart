@@ -9,5 +9,8 @@ class OnDayHabitListData {
   final int type;
   final dynamic value;
 
-  const OnDayHabitListData({this.type, this.value});
+  const OnDayHabitListData({
+    required this.type,
+    this.value,
+  });
 }

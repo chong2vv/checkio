@@ -13,20 +13,20 @@ class CalendarView extends StatefulWidget {
 
   final Map<String, List<HabitRecord>> records;
 
-  const CalendarView(
-      {Key key,
-      this.currentDay,
-      this.caculatorHeight,
-      this.habit,
-      this.records})
-      : super(key: key);
+  const CalendarView({
+    Key? key,
+    required this.currentDay,
+    required this.caculatorHeight,
+    required this.habit,
+    required this.records,
+  }) : super(key: key);
 
   @override
   _CalendarViewState createState() => _CalendarViewState();
 }
 
 class _CalendarViewState extends State<CalendarView> {
-  List<DateTime> days;
+  List<DateTime?> days = [];
 
   @override
   void initState() {
@@ -46,27 +46,17 @@ class _CalendarViewState extends State<CalendarView> {
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 7, childAspectRatio: 1.8, mainAxisSpacing: 5),
           itemBuilder: (context, index) {
-            DateTime day = days[index];
+            final day = days[index];
             if (day == null) {
-              if (index < 7) {
-                return Container(
-                  alignment: Alignment.center,
-                  child: Text(
-                    '${DateUtil.getWeekendString(index + 1)}',
-                    style: AppTheme.appTheme
-                        .headline1(fontWeight: FontWeight.w500, fontSize: 15),
-                  ),
-                );
-              }
               return Container();
             }
             return Container(
-              decoration: getBox(days[index], index),
+              decoration: getBox(day, index),
               alignment: Alignment.center,
               child: Text(
                 '${day.day}',
                 style: AppTheme.appTheme.numHeadline1(
-                    textColor: containsDay(days[index])
+                    textColor: containsDay(day)
                         ? Colors.white
                         : AppTheme.appTheme.normalColor(),
                     fontWeight: FontWeight.bold,
@@ -78,12 +68,12 @@ class _CalendarViewState extends State<CalendarView> {
   }
 
   BoxDecoration getBox(DateTime day, int index) {
-    DateTime lastDay = days[index - 1];
-    DateTime nextDay = days.length - 1 > index ? days[index + 1] : null;
+    final lastDay = index > 0 ? days[index - 1] : null;
+    final nextDay = days.length - 1 > index ? days[index + 1] : null;
 
     if (containsDay(day)) {
-      bool containLastDay = containsDay(lastDay);
-      bool containNextDay = containsDay(nextDay);
+      bool containLastDay = lastDay != null && containsDay(lastDay);
+      bool containNextDay = nextDay != null && containsDay(nextDay);
 
       ///昨天和明天都有记录
       if (containLastDay && containNextDay) {
@@ -111,7 +101,7 @@ class _CalendarViewState extends State<CalendarView> {
   }
 
   BoxDecoration colorBox() {
-    return BoxDecoration(color: Color(widget.habit.mainColor));
+    return BoxDecoration(color: Color(widget.habit.mainColor ?? 0xFF000000));
   }
 
   BoxDecoration leftBox() {
@@ -119,7 +109,7 @@ class _CalendarViewState extends State<CalendarView> {
         shape: BoxShape.rectangle,
         borderRadius: BorderRadius.only(
             topLeft: Radius.circular(15), bottomLeft: Radius.circular(15)),
-        color: Color(widget.habit.mainColor));
+        color: Color(widget.habit.mainColor ?? 0xFF000000));
   }
 
   BoxDecoration rightBox() {
@@ -127,26 +117,19 @@ class _CalendarViewState extends State<CalendarView> {
         shape: BoxShape.rectangle,
         borderRadius: BorderRadius.only(
             topRight: Radius.circular(15), bottomRight: Radius.circular(15)),
-        color: Color(widget.habit.mainColor));
+        color: Color(widget.habit.mainColor ?? 0xFF000000));
   }
 
   BoxDecoration allBox() {
     return BoxDecoration(
-        shape: BoxShape.circle, color: Color(widget.habit.mainColor));
+        shape: BoxShape.circle, color: Color(widget.habit.mainColor ?? 0xFF000000));
   }
 
   bool containsDay(DateTime date) {
-    if (date == null) {
+    if (widget.records.isEmpty) {
       return false;
     }
-    bool contain = false;
-    if (widget.records == null || widget.records.length == 0) {
-      contain = false;
-    } else if (widget.records
-        .containsKey('${date.year}-${date.month}-${date.day}')) {
-      contain = true;
-    }
-    return contain;
+    return widget.records.containsKey('${date.year}-${date.month}-${date.day}');
   }
 
   bool isSunday(DateTime date) {

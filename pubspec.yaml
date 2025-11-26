@@ -18,35 +18,33 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: ">=2.12.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  bloc: ^7.0.0
-  flutter_bloc: ^7.0.1
+  bloc: ^8.1.2
+  flutter_bloc: ^8.1.3
   equatable: ^2.0.2
   rxdart: ^0.27.0
   sqflite:
   path:
-  modal_bottom_sheet: ^2.0.0
-  flutter_svg: ^0.22.0
+  modal_bottom_sheet: ^3.0.0
+  flutter_svg: ^2.0.10
   sleek_circular_slider: ^2.0.0
-  flutter_local_notifications: ^6.0.0
+  flutter_local_notifications: ^19.0.0
   time: ^2.0.0
-  shared_preferences: any
+  shared_preferences: ^2.2.3
   timeline_tile: ^2.0.0
   flutter_slidable: ^0.6.0
-  flash: ^2.0.0
+  flash: ^3.1.1
   fl_chart: ^0.40.0
   alarm_plugin:
-    git:
-      url: https://github.com/designDo/alarm_plugin.git
-      ref: 'master'
+    path: packages/alarm_plugin
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: any
+  cupertino_icons: ^1.0.8
 
 dev_dependencies:
   flutter_test:

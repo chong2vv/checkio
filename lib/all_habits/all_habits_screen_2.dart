@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:timefly/add_habit/habit_edit_page.dart';
@@ -62,7 +61,15 @@ class _AllHabitScreenState extends State<AllHabitScreen> {
                             .push(CupertinoPageRoute(builder: (context) {
                           return HabitEditPage(
                             isModify: false,
-                            habit: null,
+                            habit: Habit(
+                              id: '',
+                              name: '',
+                              iconPath: '',
+                              mainColor: 0xFF000000,
+                              remindTimes: const [],
+                              completeDays: const [],
+                              completed: false,
+                            ),
                           );
                         }));
                       },
@@ -160,11 +167,15 @@ class _AllHabitScreenState extends State<AllHabitScreen> {
     List<CompleteTime> times = [];
     times.add(CompleteTime(-1));
     habits.forEach((habit) {
-      CompleteTime completeTime = CompleteTime(habit.completeTime);
-      times.firstWhere((time) => time.time == habit.completeTime, orElse: () {
-        times.add(completeTime);
-        return null;
-      });
+      final completeTimeValue = habit.completeTime ?? -1;
+      CompleteTime completeTime = CompleteTime(completeTimeValue);
+      times.firstWhere(
+        (time) => time.time == completeTimeValue,
+        orElse: () {
+          times.add(completeTime);
+          return completeTime;
+        },
+      );
     });
     times.sort((a, b) => a.time - b.time);
     return times;
@@ -175,7 +186,7 @@ class _AllHabitScreenState extends State<AllHabitScreen> {
       return List.from(habits);
     }
     return List<Habit>.from(habits)
-        .where((habit) => habit.completeTime == complete)
+        .where((habit) => (habit.completeTime ?? -1) == complete)
         .toList();
   }
 }

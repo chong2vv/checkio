@@ -15,7 +15,6 @@ import 'package:timefly/models/habit.dart';
 import 'package:timefly/models/habit_color.dart';
 import 'package:timefly/models/habit_icon.dart';
 import 'package:timefly/models/habit_peroid.dart';
-import 'package:timefly/models/user.dart';
 import 'package:timefly/utils/date_util.dart';
 import 'package:timefly/utils/flash_helper.dart';
 import 'package:timefly/utils/list_utils.dart';
@@ -24,12 +23,18 @@ import 'package:timefly/utils/uuid.dart';
 import 'package:timefly/widget/custom_edit_field.dart';
 
 class HabitEditPage extends StatefulWidget {
-  final Habit habit;
+  final Habit? habit;
 
   ///修改，在保存时为 update
   final bool isModify;
 
-  const HabitEditPage({Key key, this.habit, this.isModify}) : super(key: key);
+  const HabitEditPage({
+    Key? key,
+    this.habit,
+    this.isModify = false,
+  })  : assert(!isModify || habit != null,
+            'habit must not be null when modifying'),
+        super(key: key);
 
   @override
   _HabitEditPageState createState() => _HabitEditPageState();
@@ -38,9 +43,9 @@ class HabitEditPage extends StatefulWidget {
 class _HabitEditPageState extends State<HabitEditPage>
     with TickerProviderStateMixin, WidgetsBindingObserver {
   ///修改之前的原始数据，在编辑条件下，保存时对比，判断是否需要更新闹钟提醒
-  Habit originHabit;
-  String _habitIcon;
-  Color _habitColor;
+  Habit? originHabit;
+  late String _habitIcon;
+  late Color _habitColor;
 
   List<CompleteTime> completeTimes = [];
   List<CompleteDay> weekCompleteDays = [];
@@ -59,73 +64,80 @@ class _HabitEditPageState extends State<HabitEditPage>
   int countByWeek = 7;
   int countByMonth = 15;
 
-  AnimationController fontAnimationController;
-  AnimationController bottomAnimationController;
+  late final AnimationController fontAnimationController;
+  late final AnimationController bottomAnimationController;
 
   @override
   void initState() {
-    print(widget.habit);
-    if (widget.isModify) {
-      originHabit = widget.habit.copyWith();
-      _name = widget.habit.name;
-      _mark = widget.habit.mark;
-      if (widget.habit.period == HabitPeriod.day) {
-        countByDay = widget.habit.doNum;
+    final habit = widget.habit;
+    if (widget.isModify && habit != null) {
+      originHabit = habit.copyWith();
+      _name = habit.name ?? '';
+      _mark = habit.mark ?? '';
+      if (habit.period == HabitPeriod.day) {
+        countByDay = habit.doNum ?? countByDay;
       }
-      if (widget.habit.period == HabitPeriod.week) {
-        countByWeek = widget.habit.doNum;
+      if (habit.period == HabitPeriod.week) {
+        countByWeek = habit.doNum ?? countByWeek;
       }
-      if (widget.habit.period == HabitPeriod.month) {
-        countByMonth = widget.habit.doNum;
+      if (habit.period == HabitPeriod.month) {
+        countByMonth = habit.doNum ?? countByMonth;
       }
-      if (widget.habit.remindTimes != null &&
-          widget.habit.remindTimes.length > 0) {
-        remindTimes = widget.habit.remindTimes
+      final habitRemindTimes = habit.remindTimes;
+      if (habitRemindTimes.isNotEmpty) {
+        remindTimes = habitRemindTimes
             .map((e) => DateUtil.parseHourAndMinWithString(e))
+            .whereType<DateTime>()
             .toList();
         remindTimes.sort(
             (a, b) => a.millisecondsSinceEpoch - b.millisecondsSinceEpoch);
-        originRemindTimes = List<DateTime>.from(remindTimes).toList();
+        originRemindTimes = List<DateTime>.from(remindTimes);
       }
     }
 
     List<HabitIcon> icons = HabitIcon.getIcons();
-    if (widget.isModify) {
-      _habitIcon = widget.habit.iconPath;
+    if (widget.isModify && habit != null && habit.iconPath != null) {
+      _habitIcon = habit.iconPath!;
     } else {
-      _habitIcon = icons[Random().nextInt(icons.length - 1)].icon;
+      _habitIcon = icons[Random().nextInt(icons.length)].icon;
     }
 
     List<HabitColor> colors = HabitColor.getBackgroundColors();
-    if (widget.isModify) {
-      _habitColor = Color(widget.habit.mainColor);
+    if (widget.isModify && habit != null && habit.mainColor != null) {
+      _habitColor = Color(habit.mainColor!);
     } else {
-      _habitColor = colors[Random().nextInt(colors.length - 1)].color;
+      _habitColor = colors[Random().nextInt(colors.length)].color;
     }
 
     completeTimes = CompleteTime.getCompleteTimes(
-        widget.isModify ? widget.habit.completeTime : 0);
+        widget.isModify ? (habit?.completeTime ?? 0) : 0);
 
     weekCompleteDays = CompleteDay.getCompleteDays();
-    if (widget.isModify && widget.habit.period == HabitPeriod.week) {
+    if (widget.isModify &&
+        habit != null &&
+        habit.period == HabitPeriod.week &&
+        habit.completeDays.isNotEmpty) {
       for (int i = 0; i < weekCompleteDays.length; i++) {
         weekCompleteDays[i].isSelect =
-            widget.habit.completeDays.contains(weekCompleteDays[i].day);
+            habit.completeDays.contains(weekCompleteDays[i].day);
       }
     }
 
     dayCompleteDays = CompleteDay.getCompleteDays();
-    if (widget.isModify && widget.habit.period == HabitPeriod.day) {
+    if (widget.isModify &&
+        habit != null &&
+        habit.period == HabitPeriod.day &&
+        habit.completeDays.isNotEmpty) {
       for (int i = 0; i < dayCompleteDays.length; i++) {
         dayCompleteDays[i].isSelect =
-            widget.habit.completeDays.contains(dayCompleteDays[i].day);
+            habit.completeDays.contains(dayCompleteDays[i].day);
       }
     }
 
     habitPeriods =
-        HabitPeriod.getHabitPeriods(widget.isModify ? widget.habit.period : 0);
-    if (widget.isModify) {
-      currentPeriod = widget.habit.period;
+        HabitPeriod.getHabitPeriods(widget.isModify ? (habit?.period ?? 0) : 0);
+    if (widget.isModify && habit != null && habit.period != null) {
+      currentPeriod = habit.period!;
     }
 
     fontAnimationController =
@@ -209,8 +221,8 @@ class _HabitEditPageState extends State<HabitEditPage>
                               width: 30,
                               child: InkWell(
                                 onTap: () async {
-                                  Map<String, dynamic> result =
-                                      await showDialog(
+                                  final result =
+                                      await showDialog<Map<String, dynamic>>(
                                           context: context,
                                           barrierColor: Colors.black87,
                                           builder: (context) {
@@ -220,8 +232,10 @@ class _HabitEditPageState extends State<HabitEditPage>
                                           });
                                   if (result != null) {
                                     setState(() {
-                                      _habitIcon = result['icon'];
-                                      _habitColor = result['color'];
+                                      _habitIcon =
+                                          result['icon'] as String? ?? _habitIcon;
+                                      _habitColor =
+                                          result['color'] as Color? ?? _habitColor;
                                     });
                                   }
                                 },
@@ -363,7 +377,8 @@ class _HabitEditPageState extends State<HabitEditPage>
                 return;
               }
               if (widget.isModify) {
-                Habit newHabit = widget.habit.copyWith(
+                final habit = widget.habit!;
+                Habit newHabit = habit.copyWith(
                   name: _name,
                   iconPath: _habitIcon,
                   mainColor: _habitColor.value,
@@ -382,7 +397,7 @@ class _HabitEditPageState extends State<HabitEditPage>
                   modifyTime: DateTime.now().millisecondsSinceEpoch,
                   completed: false,
                 );
-                Pair2<List<String>, List<DateTime>> tipReminders =
+                Pair2<List<String>?, List<DateTime>>? tipReminders =
                     _updateHabit(newHabit);
 
                 if (tipReminders != null) {
@@ -391,12 +406,12 @@ class _HabitEditPageState extends State<HabitEditPage>
                         context: context,
                         builder: (context) {
                           return ModifyChangeDialog(
-                            title: tipReminders.s[0],
-                            subTitle: tipReminders.s[1],
+                            title: tipReminders.s![0],
+                            subTitle: tipReminders.s![1],
                           );
                         });
                   }
-                  await createAlarmEvents(tipReminders.t, newHabit.name);
+                  await createAlarmEvents(tipReminders.t);
                 }
                 BlocProvider.of<HabitsBloc>(context).add(HabitUpdate(newHabit));
                 await FlashHelper.toast(context, '保存成功');
@@ -424,7 +439,7 @@ class _HabitEditPageState extends State<HabitEditPage>
                   createTime: DateTime.now().millisecondsSinceEpoch,
                   completed: false,
                   records: []);
-              await createAlarmEvents(remindTimes, habit.name);
+              await createAlarmEvents(remindTimes);
               BlocProvider.of<HabitsBloc>(context).add(HabitsAdd(habit));
               FlashHelper.toast(context, '保存成功');
               Future.delayed(Duration(milliseconds: 2000),
@@ -458,23 +473,32 @@ class _HabitEditPageState extends State<HabitEditPage>
     );
   }
 
-  Pair2<List<String>, List<DateTime>> _updateHabit(Habit newHabit) {
-    if (originHabit.name != newHabit.name) {
+  Pair2<List<String>?, List<DateTime>>? _updateHabit(Habit newHabit) {
+    final oldHabit = originHabit;
+    if (oldHabit == null) {
+      return Pair2(null, remindTimes);
+    }
+    if (oldHabit.name != newHabit.name) {
       print('名字不同,新建全部提醒');
       return Pair2(
-          ['您修改了名字', '您可能需要手动删除名字为${originHabit.name}的闹钟'], remindTimes);
+          ['您修改了名字', '您可能需要手动删除名字为${oldHabit.name}的闹钟'],
+          remindTimes);
     }
 
     ///_completeDays() 和 origin 对比
-    if (!ListUtils.equals(_completeDays(), originHabit.completeDays)) {
+    if (!ListUtils.equals(_completeDays(), oldHabit.completeDays)) {
       print('周期不同,新建全部提醒');
-      return Pair2(['您修改了周期', '您可能需要手动删除周期为${originHabit.completeDays}的闹钟'],
+      return Pair2([
+        '您修改了周期',
+        '您可能需要手动删除周期为${oldHabit.completeDays}的闹钟'
+      ],
           remindTimes);
     }
 
     if (remindTimes.length == 0 && originRemindTimes.length > 0) {
       return Pair2(
-          ['您删除了提醒时间', '您可能需要手动删除名字为${originHabit.name}的闹钟'], remindTimes);
+          ['您删除了提醒时间', '您可能需要手动删除名字为${oldHabit.name}的闹钟'],
+          remindTimes);
     }
 
     ///只是添加或修改了提醒时间
@@ -501,15 +525,15 @@ class _HabitEditPageState extends State<HabitEditPage>
       if (originRemindTimes.length > 0) {
         print('提醒将被删除');
         print(originRemindTimes);
-        tips += '\n您可能需要手动删除时间为${originHabit.remindTimes}的闹钟';
+        tips += '\n您可能需要手动删除时间为${oldHabit.remindTimes}的闹钟';
       }
       return Pair2(['您更新了提醒时间', tips], remindTimes);
     }
     return null;
   }
 
-  createAlarmEvents(List<DateTime> remindTimes, String name) async {
-    if (remindTimes == null || remindTimes.length == 0) {
+  Future<void> createAlarmEvents(List<DateTime> remindTimes) async {
+    if (remindTimes.length == 0) {
       return;
     }
     List<AlarmEvent> events = remindTimes.map((remindTime) {
@@ -840,17 +864,14 @@ class _HabitEditPageState extends State<HabitEditPage>
             DateTime remindTime = remindTimes[index];
             return GestureDetector(
               onTap: () async {
-                DateTime dateTime = await _showDatePicker(context, remindTime);
+                final dateTime =
+                    await _showDatePicker(context, remindTime);
                 if (dateTime == null) {
-                  ///delete
-                  setState(() {
-                    remindTimes.remove(remindTime);
-                  });
-                } else {
-                  setState(() {
-                    _updateDateTime(dateTime, index);
-                  });
+                  return;
                 }
+                setState(() {
+                  _updateDateTime(dateTime, index);
+                });
               },
               child: Container(
                 alignment: Alignment.center,
@@ -873,7 +894,7 @@ class _HabitEditPageState extends State<HabitEditPage>
           } else {
             return GestureDetector(
               onTap: () async {
-                DateTime dateTime =
+                final dateTime =
                     await _showDatePicker(context, DateTime.now());
                 if (dateTime == null) {
                   return;
@@ -931,9 +952,9 @@ class _HabitEditPageState extends State<HabitEditPage>
         .sort((a, b) => a.millisecondsSinceEpoch - b.millisecondsSinceEpoch);
   }
 
-  Future<DateTime> _showDatePicker(
+  Future<DateTime?> _showDatePicker(
       BuildContext context, DateTime initDateTime) async {
-    return showCupertinoModalPopup(
+    return showCupertinoModalPopup<DateTime>(
         context: context,
         builder: (context) {
           DateTime currentTime = DateTime.now();

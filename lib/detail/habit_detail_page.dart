@@ -16,7 +16,7 @@ import 'package:timefly/utils/system_util.dart';
 class HabitDetailPage extends StatefulWidget {
   final String habitId;
 
-  const HabitDetailPage({Key key, this.habitId}) : super(key: key);
+  const HabitDetailPage({Key? key, required this.habitId}) : super(key: key);
 
   @override
   _HabitDetailPageState createState() => _HabitDetailPageState();
@@ -24,8 +24,8 @@ class HabitDetailPage extends StatefulWidget {
 
 class _HabitDetailPageState extends State<HabitDetailPage>
     with SingleTickerProviderStateMixin {
-  ScrollController _controller;
-  AnimationController _animationController;
+  late ScrollController _controller;
+  late AnimationController _animationController;
 
   @override
   void initState() {
@@ -81,7 +81,7 @@ class _HabitDetailPageState extends State<HabitDetailPage>
             }),
         backgroundColor: AppTheme.appTheme.isDark()
             ? AppTheme.appTheme.cardBackgroundColor()
-            : Color(habit.mainColor).withOpacity(0.8),
+            : Color(habit.mainColor ?? 0xFF000000).withOpacity(0.8),
         actions: [
           IconButton(
             iconSize: 33,
@@ -112,13 +112,13 @@ class _HabitDetailPageState extends State<HabitDetailPage>
               decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white, width: 1)),
-              child: Image.asset(habit.iconPath),
+              child: Image.asset(habit.iconPath ?? ''),
             ),
             SizedBox(
               width: 6,
             ),
             Text(
-              habit.name,
+              habit.name ?? '',
               style: AppTheme.appTheme.textStyle(
                   textColor: Colors.white,
                   fontSize: 18,

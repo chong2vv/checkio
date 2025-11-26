@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:timefly/app_theme.dart';
-import 'package:timefly/db/database_provider.dart';
 import 'package:timefly/models/habit.dart';
 import 'package:timefly/models/habit_peroid.dart';
 import 'package:timefly/one_day/habit_check_view.dart';
@@ -12,15 +11,15 @@ import 'package:timefly/widget/float_modal.dart';
 class HabitListView extends StatefulWidget {
   ///主页动画控制器，整体ListView的显示动画
   final AnimationController mainScreenAnimationController;
-  final Animation<dynamic> mainScreenAnimation;
+  final Animation<double> mainScreenAnimation;
   final List<Habit> habits;
 
-  const HabitListView(
-      {Key key,
-      this.mainScreenAnimationController,
-      this.mainScreenAnimation,
-      this.habits})
-      : super(key: key);
+  const HabitListView({
+    Key? key,
+    required this.mainScreenAnimationController,
+    required this.mainScreenAnimation,
+    required this.habits,
+  }) : super(key: key);
 
   @override
   _HabitListViewState createState() => _HabitListViewState();
@@ -28,7 +27,7 @@ class HabitListView extends StatefulWidget {
 
 class _HabitListViewState extends State<HabitListView>
     with TickerProviderStateMixin {
-  AnimationController animationController;
+  late AnimationController animationController;
 
   @override
   void initState() {
@@ -89,11 +88,14 @@ class _HabitListViewState extends State<HabitListView>
 class HabitView extends StatefulWidget {
   final Habit habit;
   final AnimationController animationController;
-  final Animation<dynamic> animation;
+  final Animation<double> animation;
 
-  const HabitView(
-      {Key key, this.habit, this.animationController, this.animation})
-      : super(key: key);
+  const HabitView({
+    Key? key,
+    required this.habit,
+    required this.animationController,
+    required this.animation,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -102,8 +104,8 @@ class HabitView extends StatefulWidget {
 }
 
 class _HabitView extends State<HabitView> with SingleTickerProviderStateMixin {
-  AnimationController tapAnimationController;
-  Animation<double> tapAnimation;
+  late AnimationController tapAnimationController;
+  late Animation<double> tapAnimation;
 
   int _initValue = 0;
   int _maxValue = 1;
@@ -123,12 +125,13 @@ class _HabitView extends State<HabitView> with SingleTickerProviderStateMixin {
     super.initState();
   }
 
-  DateTime start;
-  DateTime end;
+  late DateTime start;
+  late DateTime end;
 
   void setCheckValue() {
     DateTime now = DateTime.now();
-    switch (widget.habit.period) {
+    final period = widget.habit.period ?? HabitPeriod.month;
+    switch (period) {
       case HabitPeriod.day:
         start = DateUtil.startOfDay(now);
         end = DateUtil.endOfDay(now);
@@ -145,7 +148,7 @@ class _HabitView extends State<HabitView> with SingleTickerProviderStateMixin {
     _initValue = HabitUtil.filterHabitRecordsWithTime(widget.habit.records,
             start: start, end: end)
         .length;
-    _maxValue = widget.habit.doNum;
+    _maxValue = widget.habit.doNum ?? 1;
     if (_initValue > _maxValue) {
       _maxValue = _initValue;
     }
@@ -163,7 +166,7 @@ class _HabitView extends State<HabitView> with SingleTickerProviderStateMixin {
         context: context,
         builder: (context) {
           return HabitCheckView(
-            habitId: widget.habit.id,
+            habitId: widget.habit.id ?? '',
             isFromDetail: false,
             start: start,
             end: end,
@@ -224,19 +227,19 @@ class _HabitView extends State<HabitView> with SingleTickerProviderStateMixin {
                                   margin: EdgeInsets.only(right: 6),
                                   padding: EdgeInsets.all(5),
                                   decoration: BoxDecoration(
-                                      boxShadow: <BoxShadow>[
+                                      boxShadow:                                       <BoxShadow>[
                                         BoxShadow(
-                                            color: Color(widget.habit.mainColor)
+                                            color: Color(widget.habit.mainColor ?? 0xFF000000)
                                                 .withOpacity(0.3),
                                             offset: Offset(0, 7),
                                             blurRadius: 10)
                                       ],
                                       shape: BoxShape.circle,
-                                      color: Color(widget.habit.mainColor)
+                                      color: Color(widget.habit.mainColor ?? 0xFF000000)
                                           .withOpacity(0.5)),
                                   width: 45,
                                   height: 45,
-                                  child: Image.asset(widget.habit.iconPath),
+                                  child: Image.asset(widget.habit.iconPath ?? ''),
                                 ),
                                 Container(
                                   alignment: Alignment.center,
@@ -246,9 +249,9 @@ class _HabitView extends State<HabitView> with SingleTickerProviderStateMixin {
                                       shape: BoxShape.rectangle,
                                       borderRadius:
                                           BorderRadius.all(Radius.circular(3)),
-                                      color: Color(widget.habit.mainColor)),
+                                      color: Color(widget.habit.mainColor ?? 0xFF000000)),
                                   child: Text(
-                                    '${HabitPeriod.getPeriod(widget.habit.period)}',
+                                    '${HabitPeriod.getPeriod(widget.habit.period ?? HabitPeriod.month)}',
                                     style: AppTheme.appTheme.headline1(
                                         fontSize: 11,
                                         textColor: Colors.white,
@@ -264,7 +267,7 @@ class _HabitView extends State<HabitView> with SingleTickerProviderStateMixin {
                               alignment: Alignment.centerLeft,
                               height: 45,
                               child: Text(
-                                '${widget.habit.name}',
+                                '${widget.habit.name ?? ''}',
                                 maxLines: 2,
                                 style: AppTheme.appTheme.headline1(
                                     fontSize: 15,
@@ -291,7 +294,7 @@ class _HabitView extends State<HabitView> with SingleTickerProviderStateMixin {
                                     child: Container(
                                   alignment: Alignment.center,
                                   child: Text(
-                                      '$_initValue/${widget.habit.doNum}',
+                                      '$_initValue/${widget.habit.doNum ?? 1}',
                                       maxLines: 1,
                                       style: AppTheme.appTheme
                                           .numHeadline1(
@@ -305,7 +308,7 @@ class _HabitView extends State<HabitView> with SingleTickerProviderStateMixin {
                                       backgroundColor: AppTheme.appTheme
                                           .containerBackgroundColor(),
                                       foregroundColor:
-                                          Color(widget.habit.mainColor),
+                                          Color(widget.habit.mainColor ?? 0xFF000000),
                                       value: _initValue / _maxValue),
                                 )),
                               ],
@@ -325,8 +328,7 @@ class _HabitView extends State<HabitView> with SingleTickerProviderStateMixin {
   }
 
   String getReminderTime() {
-    return (widget.habit.remindTimes == null ||
-            widget.habit.remindTimes.length == 0)
+    return widget.habit.remindTimes.isEmpty
         ? ''
         : '${widget.habit.remindTimes[0]}';
   }

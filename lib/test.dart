@@ -98,7 +98,7 @@ void main() {
   for (int i = days.length - 1; i >= 0; i--) {
     DateTime dayi = getDay(days[i]);
     DateTime nextDay = i == 0 ? null : getDay(days[i - 1]);
-    if (isNextDay(dayi, nextDay) && nextDay != null) {
+    if (isNextDay(dayi, nextDay)) {
       count++;
     } else {
       sort.add(int.parse('$count'));
