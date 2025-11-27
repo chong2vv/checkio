@@ -43,7 +43,9 @@ class _HabitProgressScreenState extends State<HabitProgressScreen>
           return CupertinoActivityIndicator();
         }
         if (state is HabitsLodeFailure) {
-          return Container();
+          return Center(
+            child: Text('加载出错，请重试'),
+          );
         }
         List<Habit> _habits = (state as HabitLoadSuccess).habits;
         int dayPeriodHabitCount = _habits

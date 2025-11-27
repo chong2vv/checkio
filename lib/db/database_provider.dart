@@ -151,20 +151,23 @@ class DatabaseProvider {
     if (rawRecords.isEmpty) {
       return [];
     }
+    // 转换为可变的列表
+    List<Map<String, dynamic>> recordsList = rawRecords.map((e) => Map<String, dynamic>.from(e)).toList();
+    
     if (end != null && start != null) {
-      rawRecords = rawRecords.where((element) {
+      recordsList = recordsList.where((element) {
         final time = element['time'] as int? ?? 0;
         return time > start.millisecondsSinceEpoch &&
             time < end.millisecondsSinceEpoch;
       }).toList();
     }
-    rawRecords.sort((a, b) {
+    recordsList.sort((a, b) {
       final aTime = a['time'] as int? ?? 0;
       final bTime = b['time'] as int? ?? 0;
       return bTime.compareTo(aTime);
     });
-    return rawRecords
-        .map((json) => HabitRecord.fromJson(json as Map<String, dynamic>))
+    return recordsList
+        .map((json) => HabitRecord.fromJson(json))
         .toList();
   }
 

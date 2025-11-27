@@ -48,7 +48,14 @@ class _OneDayScreenState extends State<OneDayScreen>
       child: BlocBuilder<HabitsBloc, HabitsState>(
         builder: (context, state) {
           if (state is HabitsLoadInProgress) {
-            return Container();
+            return Center(
+              child: CupertinoActivityIndicator(),
+            );
+          }
+          if (state is HabitsLodeFailure) {
+            return Center(
+              child: Text('加载出错，请重试'),
+            );
           }
           if (state is HabitLoadSuccess) {
             List<OnDayHabitListData> listData = getHabits(state.habits);
@@ -119,7 +126,7 @@ class _OneDayScreenState extends State<OneDayScreen>
                       widget = Container();
                       break;
                   }
-                  return widget ?? Container();
+                  return widget;
                 });
           }
           return Container();

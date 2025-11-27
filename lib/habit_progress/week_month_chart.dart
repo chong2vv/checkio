@@ -10,7 +10,6 @@ import 'package:timefly/utils/hex_color.dart';
 import 'package:timefly/utils/pair.dart';
 import 'package:timefly/widget/clip/bottom_cliper.dart';
 import 'package:timefly/widget/tab_indicator.dart';
-import 'package:time/time.dart';
 
 class WeekMonthChart extends StatefulWidget {
   final List<Habit> habits;
@@ -291,7 +290,6 @@ class _WeekMonthChartState extends State<WeekMonthChart>
   List<double> _getWeekNums(int weekIndex) {
     Pair<DateTime> week = DateUtil.getWeekStartAndEnd(_now, weekIndex);
     DateTime start = week.x0;
-    DateTime end = week.x1;
     List<double> nums = [];
     for (int i = 0; i < 7; i++) {
       DateTime day = start.add(Duration(days: i));

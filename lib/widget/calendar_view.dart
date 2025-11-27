@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:timefly/app_theme.dart';
 import 'package:timefly/models/habit.dart';
 import 'package:timefly/utils/date_util.dart';
-import 'package:timefly/utils/habit_util.dart';
 
 class CalendarView extends StatefulWidget {
   final DateTime currentDay;

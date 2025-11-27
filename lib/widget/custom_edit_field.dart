@@ -67,6 +67,7 @@ class _CustomEditFieldState extends State<CustomEditField>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Material(
       color: Colors.transparent,
       child: Stack(

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/animation.dart';
 import 'package:timefly/app_theme.dart';
 
 import './fluid_icon.dart';

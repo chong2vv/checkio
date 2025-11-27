@@ -487,6 +487,7 @@ class HabitMonthInfoViewState extends State<HabitMonthInfoView>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -971,7 +972,7 @@ class HabitRecentRecordsView extends StatelessWidget {
   List<Widget> _children(Habit habit) {
     List<Widget> children = [];
     children.add(_titleView());
-    if (habit.records != null && habit.records.length > 0) {
+    if (habit.records.isNotEmpty) {
       children.addAll(habit.records.take(5).map((e) => _recordView(e)));
     } else {
       children.add(Container(

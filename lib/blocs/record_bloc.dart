@@ -79,22 +79,15 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
   final HabitsBloc habitsBloc;
 
   ///初始化状态为正在加载
-  RecordBloc(this.habitsBloc) : super(RecordLoadInProgress());
-
-  @override
-  Stream<RecordState> mapEventToState(RecordEvent event) async* {
-    if (event is RecordLoad) {
-      yield* _mapRecordLoadToState(event);
-    } else if (event is RecordAdd) {
-      yield* _mapRecordAddToState(event);
-    } else if (event is RecordUpdate) {
-      yield* _mapRecordUpdateToState(event);
-    } else if (event is RecordDelete) {
-      yield* _mapRecordDeleteToState(event);
-    }
+  RecordBloc(this.habitsBloc) : super(RecordLoadInProgress()) {
+    on<RecordLoad>(_mapRecordLoadToState);
+    on<RecordAdd>(_mapRecordAddToState);
+    on<RecordUpdate>(_mapRecordUpdateToState);
+    on<RecordDelete>(_mapRecordDeleteToState);
   }
 
-  Stream<RecordState> _mapRecordLoadToState(RecordLoad event) async* {
+  Future<void> _mapRecordLoadToState(
+      RecordLoad event, Emitter<RecordState> emit) async {
     try {
       List<HabitRecord> records;
       if (habitsBloc.state is HabitLoadSuccess) {
@@ -103,29 +96,26 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
             .firstWhere((habit) => habit.id == event.habitId);
         records = habit.records;
 
-        if (records.length > 0) {
-          if (event.end != null) {
-            records = records
-                .where((element) =>
-                    element.time > event.start.millisecondsSinceEpoch &&
-                    element.time < event.end.millisecondsSinceEpoch)
-                .toList();
-            records.sort((a, b) => b.time - a.time);
-          } else {
-            records.sort((a, b) => b.time - a.time);
-          }
+        if (records.isNotEmpty) {
+          records = records
+              .where((element) =>
+                  element.time > event.start.millisecondsSinceEpoch &&
+                  element.time < event.end.millisecondsSinceEpoch)
+              .toList();
+          records.sort((a, b) => b.time - a.time);
         }
-        yield RecordLoadSuccess(records);
+        emit(RecordLoadSuccess(records));
         return;
       }
       records = [];
-      yield RecordLoadSuccess(records);
+      emit(RecordLoadSuccess(records));
     } catch (_) {
-      yield RecordLoadFailure();
+      emit(RecordLoadFailure());
     }
   }
 
-  Stream<RecordState> _mapRecordAddToState(RecordAdd event) async* {
+  Future<void> _mapRecordAddToState(
+      RecordAdd event, Emitter<RecordState> emit) async {
     try {
       if (state is RecordLoadSuccess) {
         final List<HabitRecord> records =
@@ -139,12 +129,13 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
           habitsBloc.add(HabitUpdate(currentHabit.copyWith(
               records: List.from(currentHabit.records)..add(event.record))));
         }
-        yield RecordLoadSuccess(records);
+        emit(RecordLoadSuccess(records));
       }
     } catch (e) {}
   }
 
-  Stream<RecordState> _mapRecordUpdateToState(RecordUpdate event) async* {
+  Future<void> _mapRecordUpdateToState(
+      RecordUpdate event, Emitter<RecordState> emit) async {
     try {
       if (state is RecordLoadSuccess) {
         final List<HabitRecord> records = (state as RecordLoadSuccess)
@@ -152,7 +143,7 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
             .map((record) =>
                 record.time == event.record.time ? event.record : record)
             .toList();
-        yield RecordLoadSuccess(records);
+        emit(RecordLoadSuccess(records));
         DatabaseProvider.db.updateHabitRecord(event.record);
 
         if (habitsBloc.state is HabitLoadSuccess) {
@@ -173,13 +164,14 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
     } catch (e) {}
   }
 
-  Stream<RecordState> _mapRecordDeleteToState(RecordDelete event) async* {
+  Future<void> _mapRecordDeleteToState(
+      RecordDelete event, Emitter<RecordState> emit) async {
     try {
       if (state is RecordLoadSuccess) {
         final List<HabitRecord> records =
             List.from((state as RecordLoadSuccess).records)
               ..removeWhere((record) => record.time == event.time);
-        yield RecordLoadSuccess(records);
+        emit(RecordLoadSuccess(records));
         DatabaseProvider.db.deleteHabitRecord(event.habitId, event.time);
 
         if (habitsBloc.state is HabitLoadSuccess) {

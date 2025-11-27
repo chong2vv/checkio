@@ -77,7 +77,7 @@ class HabitsTotalView extends StatelessWidget {
           int habitNum = habits.length;
           int checkNum = 0;
           habits.forEach((habit) {
-            if (habit.records != null && habit.records.length > 0) {
+            if (habit.records.isNotEmpty) {
               checkNum += habit.records.length;
             }
           });
