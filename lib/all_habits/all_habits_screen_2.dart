@@ -11,7 +11,6 @@ import 'package:timefly/models/complete_time.dart';
 import 'package:timefly/models/habit.dart';
 import 'package:timefly/utils/system_util.dart';
 import 'package:timefly/widget/clip/bottom_cliper.dart';
-import 'package:timefly/widget/tab_indicator.dart';
 
 class AllHabitScreen extends StatefulWidget {
   @override
@@ -115,27 +114,39 @@ class _AllHabitScreenState extends State<AllHabitScreen> {
                             margin: EdgeInsets.only(left: 16, right: 16),
                             child: TabBar(
                               tabs: tabs
-                                  .map((time) => Container(
-                                        alignment: Alignment.center,
-                                        width: 60,
-                                        height: 38,
+                                  .map(
+                                    (time) => Tab(
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 20, vertical: 8),
                                         child: Text(
-                                            '${CompleteTime.getTime(time.time)}'),
-                                      ))
+                                          '${CompleteTime.getTime(time.time)}',
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ),
+                                  )
                                   .toList(),
+                              isScrollable: true,
                               labelColor: Colors.white,
                               labelStyle: AppTheme.appTheme.headline1(
-                                  textColor: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16),
+                                textColor: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
                               unselectedLabelColor: Colors.white70,
                               unselectedLabelStyle: AppTheme.appTheme.headline1(
-                                  textColor: Colors.white70,
-                                  fontWeight: FontWeight.normal,
-                                  fontSize: 16),
-                              indicator: BorderTabIndicator(
-                                  indicatorHeight: 36, textScaleFactor: 0.8),
-                              isScrollable: true,
+                                textColor: Colors.white70,
+                                fontWeight: FontWeight.normal,
+                                fontSize: 16,
+                              ),
+                              dividerColor: Colors.transparent,
+                              indicatorPadding: EdgeInsets.symmetric(
+                                  horizontal: 4, vertical: 4),
+                              indicator: BoxDecoration(
+                                color: Colors.white.withOpacity(0.25),
+                                borderRadius: BorderRadius.circular(999),
+                              ),
                             ),
                           ),
                           SizedBox(

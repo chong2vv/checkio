@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -6,6 +9,7 @@ import 'package:timefly/blocs/theme/theme_bloc.dart';
 import 'package:timefly/blocs/theme/theme_event.dart';
 import 'package:timefly/blocs/theme/theme_state.dart';
 import 'package:timefly/models/user.dart';
+import 'package:timefly/utils/avatar_helper.dart';
 import 'package:timefly/utils/flash_helper.dart';
 import 'package:timefly/utils/system_util.dart';
 import 'package:timefly/widget/custom_edit_field.dart';
@@ -26,6 +30,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         SystemUtil.changeStateBarMode(
             AppTheme.appTheme.isDark() ? Brightness.light : Brightness.dark);
 
+        final session = SessionUtils.sharedInstance();
         AppThemeMode appThemeMode = state.themeMode;
         AppThemeColorMode appThemeColorMode = state.themeColorMode;
         AppFontMode appFontMode = state.fontMode;
@@ -40,13 +45,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     margin: EdgeInsets.only(
                         top: MediaQuery.of(context).padding.top, right: 24),
                     alignment: Alignment.topRight,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.all(Radius.circular(16)),
-                      child: Image.asset(
-                        'assets/images/user_icon.jpg',
-                        width: 130,
-                        height: 130,
-                        fit: BoxFit.cover,
+                    child: GestureDetector(
+                      onTap: () async {
+                        await AvatarHelper.pickAndSaveAvatar(context);
+                      },
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.all(Radius.circular(16)),
+                        child: ValueListenableBuilder<String?>(
+                          valueListenable: session.avatarPathNotifier,
+                          builder: (context, path, _) {
+                            if (path != null &&
+                                path.isNotEmpty &&
+                                File(path).existsSync()) {
+                              return Image.file(
+                                File(path),
+                                width: 130,
+                                height: 130,
+                                fit: BoxFit.cover,
+                              );
+                            }
+                            return Image.asset(
+                              'assets/images/user_icon.jpg',
+                              width: 130,
+                              height: 130,
+                              fit: BoxFit.cover,
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ),
@@ -143,11 +168,18 @@ class ChangeUserInfoView extends StatefulWidget {
 
 class _ChangeUserInfoViewState extends State<ChangeUserInfoView> {
   String userName = '';
+  Timer? _saveDebounce;
 
   @override
   void initState() {
     userName = SessionUtils.sharedInstance().currentUser?.username ?? '';
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _saveDebounce?.cancel();
+    super.dispose();
   }
 
   @override
@@ -185,6 +217,7 @@ class _ChangeUserInfoViewState extends State<ChangeUserInfoView> {
                 .themeText(fontWeight: FontWeight.bold, fontSize: 15),
             onValueChanged: (value) {
               userName = value;
+              _scheduleAutoSave();
             },
             onCompleted: () async {
               FocusScope.of(context).requestFocus(FocusNode());
@@ -193,7 +226,7 @@ class _ChangeUserInfoViewState extends State<ChangeUserInfoView> {
                 return;
               }
               try {
-                SessionUtils.sharedInstance().updateName(userName);
+                await SessionUtils.sharedInstance().updateName(userName);
               } catch (e) {
                 print(e);
               }
@@ -219,6 +252,18 @@ class _ChangeUserInfoViewState extends State<ChangeUserInfoView> {
         ],
       ),
     );
+  }
+
+  void _scheduleAutoSave() {
+    if (userName.isEmpty) {
+      return;
+    }
+    _saveDebounce?.cancel();
+    _saveDebounce = Timer(Duration(milliseconds: 600), () async {
+      try {
+        await SessionUtils.sharedInstance().updateName(userName);
+      } catch (_) {}
+    });
   }
 }
 

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,15 +11,22 @@ import 'package:timefly/login/login_page.dart';
 import 'package:timefly/mine/settings_screen.dart';
 import 'package:timefly/models/habit.dart';
 import 'package:timefly/models/user.dart';
+import 'package:timefly/utils/avatar_helper.dart';
 
-class UserInfoView extends StatelessWidget {
+class UserInfoView extends StatefulWidget {
   final VoidCallback callback;
 
   const UserInfoView({Key? key, required this.callback}) : super(key: key);
 
   @override
+  State<UserInfoView> createState() => _UserInfoViewState();
+}
+
+class _UserInfoViewState extends State<UserInfoView> {
+  @override
   Widget build(BuildContext context) {
-    final user = SessionUtils.sharedInstance().currentUser;
+    final session = SessionUtils.sharedInstance();
+    final user = session.currentUser;
     final displayName =
         (user == null || user.username.isEmpty) ? '编辑名字' : user.username;
     return Container(
@@ -26,13 +35,34 @@ class UserInfoView extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.all(Radius.circular(16)),
-            child: Image.asset(
-              'assets/images/user_icon.jpg',
-              width: 100,
-              height: 100,
-              fit: BoxFit.cover,
+          GestureDetector(
+            onTap: () async {
+              await AvatarHelper.pickAndSaveAvatar(context);
+              widget.callback();
+            },
+            child: ClipRRect(
+              borderRadius: BorderRadius.all(Radius.circular(16)),
+              child: ValueListenableBuilder<String?>(
+                valueListenable: session.avatarPathNotifier,
+                builder: (context, path, _) {
+                  if (path != null &&
+                      path.isNotEmpty &&
+                      File(path).existsSync()) {
+                    return Image.file(
+                      File(path),
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.cover,
+                    );
+                  }
+                  return Image.asset(
+                    'assets/images/user_icon.jpg',
+                    width: 100,
+                    height: 100,
+                    fit: BoxFit.cover,
+                  );
+                },
+              ),
             ),
           ),
           SizedBox(
@@ -52,7 +82,7 @@ class UserInfoView extends StatelessWidget {
                     .push(CupertinoPageRoute(builder: (context) {
                   return SettingsScreen();
                 }));
-                callback();
+                widget.callback();
               }
             },
             child: Text(

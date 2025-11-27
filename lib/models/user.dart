@@ -1,3 +1,7 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timefly/blocs/habit/habit_bloc.dart';
 import 'package:timefly/blocs/habit/habit_event.dart';
 import 'package:timefly/db/database_provider.dart';
@@ -41,6 +45,8 @@ class User {
 }
 
 class SessionUtils {
+  static const String _avatarKeyPrefix = 'user_avatar_path';
+
   SessionUtils._();
 
   factory SessionUtils() => sharedInstance();
@@ -51,9 +57,12 @@ class SessionUtils {
 
   User? currentUser;
   HabitsBloc? habitsBloc;
+  final ValueNotifier<String?> avatarPathNotifier =
+      ValueNotifier<String?>(null);
 
   Future<void> init() async {
     currentUser = await DatabaseProvider.db.getCurrentUser();
+    await _loadAvatarPath();
     if (currentUser != null) {
       // ignore: avoid_print
       print('init user -- ${currentUser!.toJson()}');
@@ -68,12 +77,14 @@ class SessionUtils {
     await DatabaseProvider.db.deleteUser();
     currentUser = user;
     await DatabaseProvider.db.saveUser(user);
+    await _loadAvatarPath();
     habitsBloc?.add(HabitsLoad());
   }
 
   Future<void> logout() async {
     currentUser = null;
     await DatabaseProvider.db.deleteUser();
+    avatarPathNotifier.value = null;
     habitsBloc?.add(HabitsLoad());
   }
 
@@ -86,11 +97,45 @@ class SessionUtils {
     await DatabaseProvider.db.updateUser(currentUser!);
   }
 
+  Future<void> updateAvatarPath(String? path) async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = _avatarKeyFor(currentUser);
+    if (path == null || path.isEmpty) {
+      await prefs.remove(key);
+      avatarPathNotifier.value = null;
+    } else {
+      await prefs.setString(key, path);
+      avatarPathNotifier.value = path;
+    }
+  }
+
+  Future<void> deleteCurrentAvatarFile() async {
+    final currentPath = avatarPathNotifier.value;
+    if (currentPath == null) {
+      return;
+    }
+    final file = File(currentPath);
+    if (await file.exists()) {
+      await file.delete();
+    }
+    await updateAvatarPath(null);
+  }
+
   bool isLogin() {
     return currentUser != null;
   }
 
   String? getUserId() {
     return currentUser?.id;
+  }
+
+  Future<void> _loadAvatarPath() async {
+    final prefs = await SharedPreferences.getInstance();
+    avatarPathNotifier.value = prefs.getString(_avatarKeyFor(currentUser));
+  }
+
+  String _avatarKeyFor(User? user) {
+    final id = user?.id ?? 'guest';
+    return '${_avatarKeyPrefix}_$id';
   }
 }
