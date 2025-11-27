@@ -30,7 +30,6 @@ class _MineScreenState extends State<MineScreen> {
                 },
               ),
               HabitsTotalView(),
-              UserProView(),
               EnterView(),
               SizedBox(
                 height: 100,
