@@ -163,7 +163,9 @@ class DatabaseProvider {
       final bTime = b['time'] as int? ?? 0;
       return bTime.compareTo(aTime);
     });
-    return rawRecords.map(HabitRecord.fromJson).toList();
+    return rawRecords
+        .map((json) => HabitRecord.fromJson(json as Map<String, dynamic>))
+        .toList();
   }
 
   ///获取天数分类习惯个数，用于’我的一天‘页面分类

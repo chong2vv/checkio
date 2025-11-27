@@ -36,9 +36,9 @@ dependencies:
   time: ^2.0.0
   shared_preferences: ^2.2.3
   timeline_tile: ^2.0.0
-  flutter_slidable: ^0.6.0
+  flutter_slidable: ^3.0.0
   flash: ^3.1.1
-  fl_chart: ^0.40.0
+  fl_chart: ^1.0.0
   alarm_plugin:
     path: packages/alarm_plugin
 
@@ -49,6 +49,9 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+dependency_overrides:
+  platform: ^3.1.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

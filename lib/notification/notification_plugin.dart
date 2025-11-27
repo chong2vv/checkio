@@ -62,8 +62,8 @@ class NotificationPlugin {
   Future<void> scheduleNotification() async {
     var dateTime = tz.TZDateTime.now(tz.UTC).add(Duration(seconds: 5));
     var androidChannelSpecifics = AndroidNotificationDetails(
-        channelId: 'channel_id',
-        channelName: 'channel_name',
+        'channel_id',
+        'channel_name',
         channelDescription: 'channel_desc',
         importance: Importance.max,
         priority: Priority.high,

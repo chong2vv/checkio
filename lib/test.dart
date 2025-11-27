@@ -40,7 +40,7 @@ void main() {
   print('aaa$listq');
 
   List<HabitRecord> records = [];
-  records.add(HabitRecord(time: 1111, content: "cidw"));
+  records.add(HabitRecord(habitId: "test", time: 1111, content: "cidw"));
   Habit habit = Habit(
     id: "11",
     name: "name",
@@ -97,8 +97,8 @@ void main() {
   int count = 1;
   for (int i = days.length - 1; i >= 0; i--) {
     DateTime dayi = getDay(days[i]);
-    DateTime nextDay = i == 0 ? null : getDay(days[i - 1]);
-    if (isNextDay(dayi, nextDay)) {
+    DateTime? nextDay = i == 0 ? null : getDay(days[i - 1]);
+    if (nextDay != null && isNextDay(dayi, nextDay)) {
       count++;
     } else {
       sort.add(int.parse('$count'));

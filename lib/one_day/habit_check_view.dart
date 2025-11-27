@@ -36,7 +36,6 @@ class HabitCheckView extends StatefulWidget {
 
 class _HabitCheckViewState extends State<HabitCheckView> {
   final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
-  final SlidableController slidableController = SlidableController();
   final ScrollController scrollController = ScrollController();
 
   List<HabitRecord> habitRecords = [];
@@ -174,38 +173,20 @@ class _HabitCheckViewState extends State<HabitCheckView> {
             padding: EdgeInsets.only(top: 10, bottom: 20, left: 28),
             child: Slidable(
               key: GlobalKey(),
-              controller: slidableController,
-              actionPane: SlidableDrawerActionPane(),
-              secondaryActions: [
-                GestureDetector(
-                  onTap: () async {
-                    removeItem(context, record);
-                  },
-                  child: Container(
-                    alignment: Alignment.center,
-                    child: Container(
-                      alignment: Alignment.center,
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                          boxShadow: <BoxShadow>[
-                            BoxShadow(
-                                color: Colors.redAccent.withOpacity(0.35),
-                                offset: const Offset(2, 2.0),
-                                blurRadius: 6.0),
-                          ],
-                          shape: BoxShape.rectangle,
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                          color: Colors.red),
-                      child: Icon(
-                        Icons.delete_outline,
-                        color: Colors.white,
-                        size: 30,
-                      ),
-                    ),
+              startActionPane: ActionPane(
+                motion: const DrawerMotion(),
+                children: [
+                  SlidableAction(
+                    onPressed: (context) {
+                      removeItem(context, record);
+                    },
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                    icon: Icons.delete_outline,
+                    label: 'Delete',
                   ),
-                )
-              ],
+                ],
+              ),
               child: Container(
                   decoration: BoxDecoration(
                       shape: BoxShape.rectangle,
