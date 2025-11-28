@@ -1,5 +1,7 @@
 allprojects {
     repositories {
+        google()
+        mavenCentral()
         maven{
             url 'https://maven.aliyun.com/repository/central'
         }
@@ -12,8 +14,6 @@ allprojects {
         maven{
             url 'https://maven.aliyun.com/repository/gradle-plugin'
         }
-       // google()
-        //jcenter()
     }
 }
 

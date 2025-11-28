@@ -72,17 +72,21 @@ android {
     }
 }
 
-configurations.all {
-    resolutionStrategy {
-        force 'androidx.activity:activity:1.10.2'
-        force 'androidx.activity:activity-ktx:1.10.2'
-    }
-}
-
 flutter {
     source '../..'
 }
 
+configurations.all {
+    resolutionStrategy {
+        force 'androidx.activity:activity:1.9.2'
+        force 'androidx.activity:activity-ktx:1.9.2'
+    }
+}
+
 dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
+    
+    // 强制使用兼容的 androidx.activity 版本
+    implementation 'androidx.activity:activity:1.9.2'
+    implementation 'androidx.activity:activity-ktx:1.9.2'
 }
